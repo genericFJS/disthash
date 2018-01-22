@@ -1,11 +1,14 @@
 #pragma once
+#include "HashMap.h"
 #include <string>
 using std::string;
 
 class MPIHash {
 private:
-	HashMap hashMap;
+	HashMap* hashMap;
 public:
+	static const int HASHMAP_SIZE;
+	static int DISTHASH_SIZE;
 	//MPIHash();
 	MPIHash(int hashmapSize);
 	~MPIHash();

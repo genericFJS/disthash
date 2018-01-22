@@ -1,10 +1,7 @@
 #include "MPIHash.h"
-#include <iostream>
-#include "HashMap.h"
 
-static const int HASHMAP_SIZE = 50;
-static int DISTHASH_SIZE = 4;
-static int VERBOSE = 1;
+const int MPIHash::HASHMAP_SIZE = 50;
+int MPIHash::DISTHASH_SIZE = 4;
 
 MPIHash::MPIHash(int hashmapSize) {
 	hashMap = new HashMap(HASHMAP_SIZE);
@@ -33,15 +30,4 @@ string MPIHash::GetDistEntry(int key) {
 
 bool MPIHash::DeleteDistEntry(int key) {
 
-}
-
-int main() {
-	MPIHash* mpiHash = new MPIHash(HASHMAP_SIZE);
-	//std::cout << "Hello World!" << std::endl;
-
-	mpiHash->InsertDistEntry(5, "Alex");
-	mpiHash->InsertDistEntry(55, "Thomas");
-	mpiHash->InsertDistEntry(56, "Brunhilde");
-
-	return 0;
 }

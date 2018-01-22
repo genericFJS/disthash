@@ -101,6 +101,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files\MPICH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,6 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files\MPICH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,11 +144,16 @@
     <ClInclude Include="HashMap.h" />
     <ClInclude Include="LinkedHashEntry.h" />
     <ClInclude Include="MPIHash.h" />
+    <ClInclude Include="TestHashMap.h" />
+    <ClInclude Include="TestMPIComm.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DistHash.cpp" />
     <ClCompile Include="MPIHash.cpp" />
     <ClCompile Include="HashMap.cpp" />
     <ClCompile Include="LinkedHashEntry.cpp" />
+    <ClCompile Include="TestHashMap.cpp" />
+    <ClCompile Include="TestMPIComm.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
