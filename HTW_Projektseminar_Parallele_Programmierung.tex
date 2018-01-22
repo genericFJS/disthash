@@ -93,10 +93,16 @@ isys101
 \begin{lstlisting}
 ssh ilux150.informatik.htw-dresden.de -l s74053
 ssh isys1
-mpiexec -f ~/projektseminar/machinefile -n 5 hostname
-mpiexec -f ~/projektseminar/machinefile -n 5 ./examples/cpi
+mpiexec -f ~/projektseminar/machines/machinefile -n 5 hostname
+mpiexec -f ~/projektseminar/machines/machinefile -n 5 ./examples/cpi
 \end{lstlisting}
 \end{itemize}
+
+\begin{lstlisting}
+cd projektseminar/disthash/
+mpic++ *.c -o disthash
+mpiexec -f ~/projektseminar/machines/machinefile -n 5 disthash
+\end{lstlisting}
 
 \chapter{Vorbetrachtungen}
 
