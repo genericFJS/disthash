@@ -11,8 +11,6 @@ TestMPIComm::TestMPIComm() {
 	if (rank == 0) {
 		dest = 1;
 		source = 1;
-		//MPI_Send(&result, result.size(), MPI_CHAR, 0, 0, MPI_COMM_WORLD);
-		//MPI_Send(result.c_str(), result.size(), MPI_CHAR, 0, 0, MPI_COMM_WORLD);
 		rc = MPI_Send(&outmsg, 1, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
 		rc = MPI_Recv(&inmsg, 1, MPI_CHAR, source, tag, MPI_COMM_WORLD, &statMPI);
 	} else if (rank == 1) {
@@ -50,7 +48,7 @@ TestMPIComm::TestMPIComm() {
 
 		string recv = recv_data;
 
-		std::cout << "Rank " << rank << " got sent: " << recv << std::endl;
+		std::cout << "Rank " << rank << " got: " << recv << std::endl;
 	}
 
 	MPI_Finalize();
