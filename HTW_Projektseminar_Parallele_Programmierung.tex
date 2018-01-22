@@ -1,0 +1,136 @@
+% LaTeX master Datei(en) zusammengestellt von Falk-Jonatan Strube zur Nutzung an der Hochschule für Technik und Wirtschaft Dresden: https://github.com/genericFJS/htw
+\documentclass{scrreprt}
+\gdef\pathtomaster{../../htw/_LaTeX_master}
+\input{\pathtomaster/htwcd_content.sty}
+\input{\pathtomaster/fjs_packages-macros.sty}
+
+\faculty{Fakultät Informatik/Mathematik}
+\chair{Lehrstuhl für Grundlagen der Informatik/Programmierung}
+\subject{seminar}
+\title{Parallele Programmierung}
+\author{Falk-Jonatan Strube}
+\professor{Prof. Dr. Peter Sobe}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\chapterN{Hinweise}
+Projektdokumentation: Vorteil/Nachteil? Schneller? Gleichschnell, dafür Last verteilt? …
+
+\chapter{Aufgabe}
+\section{Verteilte Hashtable  unter MPI,  Nachrichtenbasierte Variante}
+Es ist ein verteilter Datenspeicher aufzubauen der Einträge (Key, Value) im Speicheradressraum verschiedener Prozesse ablegt. Der Prozess (gemappt auf einen Rechner), sowie der Ort im jeweiligen Speicher sind durch eine Zuordnung ausgehend vom Key vorzunehmen. Vorgeschlagen wird hierfür eine Hash-Funktion, die eine Adresse aus dem Key berechnet, die zu einem Teil für die Auswahl des Prozesses, zu einem anderen Teil zur Auswahl des Speicherplatzes dienen soll.
+
+Der Zugriff auf den Datenspeicher soll aus allen Prozessen möglich sein, die sich den Speicherbereich teilen (Prozessgruppe fester Größe, Größe kann für Skalierungsexperimente verändert werden).
+
+Zugriffsoperationen  (in C-Aufrufsyntax): 
+
+\begin{lstlisting}[language=C]
+rc = Insert(key, value);
+found = Get(key, &value);
+found = Delete(key);
+\end{lstlisting}
+
+Als Infrastruktur zur Verteilung wird MPI vorgeschlagen. Die Hashtable-Aktivitäten sollen idealerweise im Hintergrund durch Threads realisiert werden, unabhängig von den Abläufen zur Anwendungsverarbeitung. Möglicherweise erweisen sich weitere Funktionen zum Zugriff auf Hashtable-Einträge als nötig, beispielsweise um eine Kopplung der Nachrichtenbasierten Hashtable mit der Memoy-Window-basierten vorzunehmen.
+
+\section{Ziele}
+\begin{itemize}
+\item Zugriff auf Daten ausgehend von allen Prozessen, ohne Platzierung kennen zu müssen
+\item Skalierung der Speichergröße über die Kapazität eines Rechners hinaus
+\item Parallele Zugriffe ohne zentrale Zugriffsinstanz
+\end{itemize}
+Eine Einschränkung soll sein, dass der Datenspeicher nur über die Lebenszeit der Prozessgruppe verteilt in den Hauptspeichern existieren soll. Ein Rückschreiben und wiederholtes Laden der Inhalte auf/von nichtflüchtigen/m Speicher kann implementiert werden.
+
+Eine Versuchsreihe soll das parallele Einfügen und Auslesen von Daten in die verteilte Hashtable dokumentieren. Dabei soll die Verteilung der Hashtable skaliert werden, sowie auch die Anzahl der zugreifenden Prozesse.
+
+Programmiersprachen: C, C++, MPI, MPI-Threads
+
+%\section{Anmerkungen}
+%Auch mit verteilter Memory Table im Shared Memory
+
+\chapter{Installation}
+
+\begin{itemize}
+\item Einrichtung von \verb|mpich|:
+\begin{lstlisting}
+wget http://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz
+tar -xzf mpich-3.2.tar.gz
+mkdir /user/profile/active/ia15/s74053/mpich-install
+cd mpich-3.2
+./configure -prefix=/user/profile/active/ia15/s74053/mpich-install --disable-f77 --disable-fortran |& tee c.txt
+make |& tee m.txt
+make install |& tee mi.txt
+\end{lstlisting}
+
+\item Erstellen der \verb|machinefile| im Ordner \verb|~/projektseminar/|:
+\begin{lstlisting}
+isys123
+isys122
+isys121
+isys120
+isys119
+isys118
+isys117
+isys116
+isys115
+isys114
+isys113
+isys112
+isys111
+isys110
+isys109
+isys108
+isys107
+isys106
+isys105
+isys104
+isys103
+isys102
+isys101
+\end{lstlisting}
+\item Ausführen von Beispielcode (funktioniert nicht von \verb|ilux150| ausgehend):
+\begin{lstlisting}
+ssh ilux150.informatik.htw-dresden.de -l s74053
+ssh isys1
+mpiexec -f ~/projektseminar/machinefile -n 5 hostname
+mpiexec -f ~/projektseminar/machinefile -n 5 ./examples/cpi
+\end{lstlisting}
+\end{itemize}
+
+\chapter{Vorbetrachtungen}
+
+\begin{itemize}
+\item Hash-Tabelle mit Überlaufliste (vgl. Überlaufbereich)
+\item Hash-Tabelle ist verteilt: Jeder Rechner hat einen Teil der Einträge. Zum Testen sollen zuerst zufällig viele Einträge (Namen o.ä.) für die Eintragung eingereicht werden, dann viele abgefragt werden. Die Kommunikation sollte nicht über \lstinline`broadcast`, sondern über \lstinline`send-recieve` (\lstinline`mpi_any_source`) der einzelnen Rechner passieren.
+\item Jeder Prozess hat zwei Therads: 
+\begin{itemize}
+\item Prozess, der Aufträge anderer Prozesse zum Bearbeiten abfängt.
+\item Prozess, der die Aufträge abarbeitet (Hash-Eintrag schreiben oder lesen und versenden)
+\end{itemize}
+\end{itemize}
+
+\section{Umfang}
+\begin{itemize}
+\item Funktionierendes Eintragen, Austragen und Abfragen von Hash-Einträgen über MPI, auch bei vielen gleichzeitigen Anfragen.
+\item Messen von Schreib-/Lese-/Löschanfragen im Vergleich bei x Rechnern.% $x=1,2,3,4,6,8,16$
+
+Vergleich auch Hashmap-Server und ein Client.
+\item Dokumentation des Projektablaufs.
+\item Auswertung des Projekts im Hinblick auf Leistung der Parallelisierung.
+\end{itemize}
+
+bit mix hash streung vs modulo zur zuweisung der hash einträge $\to$ optimal gleichverteilte Hasheinträge
+
+\chapter{Auswertung}
+
+Annahme:
+\begin{itemize}
+\item Wahrscheinlich ist kein Geschwindigkeitsgewinn feststellbar, da relativ viel kommuniziert und relativ wenig berechnet wird.
+\item Es ist vorstellbar, dass es sogar langsamer ist, wenn viele Prozesse genau einen Hash-Wert eines einzigen Rechners lesen/schreiben möchten.
+\item 
+\end{itemize}
+
+% http://www.algolist.net/Data_structures/Hash_table/Open_addressing
+
+\end{document}
