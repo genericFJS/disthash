@@ -101,6 +101,8 @@ mpiexec -f ~/projektseminar/machines/machinefile -n 5 ./examples/cpi
 \begin{lstlisting}
 cd projektseminar/disthash/
 mpic++ *.c -o disthash
+bzw:
+mpic++ *.c -o disthash -lpthread
 mpiexec -f ~/projektseminar/machines/machinefile -n 5 disthash
 \end{lstlisting}
 

@@ -39,6 +39,9 @@
     <ClCompile Include="DistHash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestMPIThreads.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MPIHash.h">
@@ -54,6 +57,9 @@
       <Filter>Header Files\Tests</Filter>
     </ClInclude>
     <ClInclude Include="TestMPIComm.h">
+      <Filter>Header Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="TestMPIThreads.h">
       <Filter>Header Files\Tests</Filter>
     </ClInclude>
   </ItemGroup>

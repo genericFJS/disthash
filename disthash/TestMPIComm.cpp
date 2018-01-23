@@ -4,7 +4,7 @@ TestMPIComm::TestMPIComm() {
 	string testString = "Brunhilde";
 
 	extern int numTasks, rank;
-	extern MPI_Status statMPI;
+	extern MPI_Status status;
 	int dest, source, rc, count, tag = 1;
 	char inmsg, outmsg = 'x';
 	
@@ -12,19 +12,19 @@ TestMPIComm::TestMPIComm() {
 		dest = 1;
 		source = 1;
 		rc = MPI_Send(&outmsg, 1, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
-		rc = MPI_Recv(&inmsg, 1, MPI_CHAR, source, tag, MPI_COMM_WORLD, &statMPI);
+		rc = MPI_Recv(&inmsg, 1, MPI_CHAR, source, tag, MPI_COMM_WORLD, &status);
 	} else if (rank == 1) {
 		dest = 0;
 		source = 0;
 		std::cout << "Hallo" << std::endl;
 		usleep(1000000);
-		rc = MPI_Recv(&inmsg, 1, MPI_CHAR, source, tag, MPI_COMM_WORLD, &statMPI);
+		rc = MPI_Recv(&inmsg, 1, MPI_CHAR, source, tag, MPI_COMM_WORLD, &status);
 		rc = MPI_Send(&outmsg, 1, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
 	}
 
-	rc = MPI_Get_count(&statMPI, MPI_CHAR, &count);
+	rc = MPI_Get_count(&status, MPI_CHAR, &count);
 	printf("Task %d: Received %d char(s) from task %d with tag %d: %c/%c\n",
-		rank, count, statMPI.MPI_SOURCE, statMPI.MPI_TAG, inmsg, outmsg);
+		rank, count, status.MPI_SOURCE, status.MPI_TAG, inmsg, outmsg);
 
 	const int lentag = 0;
 	const int datatag = 1;

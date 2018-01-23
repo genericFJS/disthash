@@ -146,6 +146,7 @@
     <ClInclude Include="MPIHash.h" />
     <ClInclude Include="TestHashMap.h" />
     <ClInclude Include="TestMPIComm.h" />
+    <ClInclude Include="TestMPIThreads.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DistHash.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="LinkedHashEntry.cpp" />
     <ClCompile Include="TestHashMap.cpp" />
     <ClCompile Include="TestMPIComm.cpp" />
+    <ClCompile Include="TestMPIThreads.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
