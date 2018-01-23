@@ -1,7 +1,5 @@
 #pragma once
-#include <stddef.h>
-#include <string>
-using std::string;
+#include "MyLibs.h"
 
 class LinkedHashEntry {
 private:

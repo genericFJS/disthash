@@ -1,6 +1,6 @@
 #pragma once
 #include "LinkedHashEntry.h"
-#include <stddef.h>
+#include "MyLibs.h"
 
 class HashMap {
 private:

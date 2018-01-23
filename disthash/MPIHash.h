@@ -1,7 +1,6 @@
 #pragma once
 #include "HashMap.h"
-#include <string>
-using std::string;
+#include "MyLibs.h"
 
 class MPIHash {
 private:

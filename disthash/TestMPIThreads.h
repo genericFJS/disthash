@@ -1,11 +1,6 @@
 #pragma once
-#include "mpi.h"
-#include <stdio.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <iostream>
-#include <string>
-using std::string;
+#include "MyLibs.h"
+
 class TestMPIThreads {
 public:
 	TestMPIThreads();

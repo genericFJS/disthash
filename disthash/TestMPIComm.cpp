@@ -7,7 +7,7 @@ TestMPIComm::TestMPIComm() {
 	extern MPI_Status status;
 	int dest, source, rc, count, tag = 1;
 	char inmsg, outmsg = 'x';
-	
+
 	if (rank == 0) {
 		dest = 1;
 		source = 1;
@@ -16,8 +16,8 @@ TestMPIComm::TestMPIComm() {
 	} else if (rank == 1) {
 		dest = 0;
 		source = 0;
-		std::cout << "Hallo" << std::endl;
-		usleep(1000000);
+		//std::cout << "Hallo" << std::endl;
+		//usleep(1000000);
 		rc = MPI_Recv(&inmsg, 1, MPI_CHAR, source, tag, MPI_COMM_WORLD, &status);
 		rc = MPI_Send(&outmsg, 1, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
 	}
@@ -50,8 +50,6 @@ TestMPIComm::TestMPIComm() {
 
 		std::cout << "Rank " << rank << " got: " << recv << std::endl;
 	}
-
-	MPI_Finalize();
 }
 
 

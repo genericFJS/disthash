@@ -21,7 +21,7 @@ int MPIHash::GetDistHashKey(int key) {
 
 
 void MPIHash::InsertDistEntry(int key, string value) {
-	
+
 }
 
 string MPIHash::GetDistEntry(int key) {
