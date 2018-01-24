@@ -30,10 +30,10 @@
 \tableofcontents
 \end{frame}
 
-\section{Aktivitäten durch Threads}
+\section{Aufgabenteilung durch Threads}
 \begin{frame}[fragile]
 \begin{center}
-\resizebox{.99\textwidth}{!}{
+\resizebox{.85\textwidth}{!}{
 \small
 \begin{tikzpicture}[scale=.68]
 \draw  (7,1) rectangle (-2,-10);
@@ -63,9 +63,10 @@ Abarbeitung von:\\
 \node at (13,-5.5) {Prozess $k$};
 \node at (13.5,-7.5) {Thread $k'$};
 %\draw [latex-latex, shorten >=5, shorten <=5, dashed] (12,2) -- (12,3) -- (9,3) -- (9,-8) -- (7,-8);
-\draw [latex-latex, shorten >=5, shorten <=5] (7,-4) -- (13,-4) -- (13,-1);
+\draw [latex-latex, shorten >=5, shorten <=5] (7,-4) -- (9,-4) -- (9,-2) -- (13,-2) -- (13,-1);
 %\draw [-latex, shorten >=5, dashed] (9,-3) -- (12,-3) -- (12,-5);
-\draw [-latex, shorten >=5] (10,-4) -- (10,-9) -- (13,-9) -- (13,-8);
+\draw [-latex, shorten >=5] (9,-4) -- (9,-9) -- (13,-9) -- (13,-8);
+\draw [-latex, shorten >=5] (9,-9) -- (9,-11) -- (5,-11) -- (5,-10);
 \end{tikzpicture}
 }
 \end{center}
