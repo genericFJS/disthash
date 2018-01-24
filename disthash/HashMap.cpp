@@ -40,16 +40,16 @@ int HashMap::GetHashKey(int key) {
 /// </summary>
 /// <param name="key">Key des Eintrags.</param>
 /// <returns>Leer, wenn Key nicht vorhanden. Value, sonst.</returns>
-int HashMap::Get(int key) {
+string HashMap::Get(int key) {
 	int hash = GetHashKey(key);
 	if (table[hash] == NULL) {
-		return -1;
+		return string();
 	} else {
 		LinkedHashEntry *entry = table[hash];
 		while (entry != NULL && entry->getKey() != key)
 			entry = entry->getNext();
 		if (entry == NULL)
-			return -1;
+			return string();
 		else
 			return entry->getValue();
 	}
@@ -61,7 +61,7 @@ int HashMap::Get(int key) {
 /// </summary>
 /// <param name="key">Der Key des zu erstellenden Eintrags.</param>
 /// <param name="value">Der Value des zu erstellenden Eintrags.</param>
-void HashMap::Insert(int key, int value) {
+void HashMap::Insert(int key, string value) {
 	int hash = GetHashKey(key);
 	if (table[hash] == NULL) {
 		table[hash] = new LinkedHashEntry(key, value);

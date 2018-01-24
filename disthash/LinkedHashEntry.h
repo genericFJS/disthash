@@ -4,13 +4,13 @@
 class LinkedHashEntry {
 private:
 	int key;
-	int value;
+	string value;
 	LinkedHashEntry *next;
 public:
-	LinkedHashEntry(int key, int value);
+	LinkedHashEntry(int key, string value);
 	int getKey();
-	int getValue();
-	void setValue(int value);
+	string getValue();
+	void setValue(string value);
 	LinkedHashEntry *getNext();
 	void setNext(LinkedHashEntry *next);
 };

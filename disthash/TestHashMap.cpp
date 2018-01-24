@@ -7,9 +7,9 @@ TestHashMap::TestHashMap() {
 	int key2 = HASHMAP_SIZE + 42;
 	int key3 = 21;
 
-	hashMap->Insert(key1, 55);
-	hashMap->Insert(key2, 66);
-	hashMap->Insert(key3, 77);
+	hashMap->Insert(key1, "Hans");
+	hashMap->Insert(key2, "Brunhilde");
+	hashMap->Insert(key3, "Günter");
 
 	std::cout << "Eintrag " << key1 << " enthält " << hashMap->Get(key1) << "." << std::endl;
 	std::cout << "Eintrag " << key2 << " enthält " << hashMap->Get(key2) << "." << std::endl;

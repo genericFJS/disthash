@@ -10,10 +10,10 @@ public:
 	MPIHash(int hashmapSize);
 	~MPIHash();
 	int GetDistHashLocation(int key);
-	void InsertEntry(int key, int value);
-	void InsertDistEntry(int key, int value);
-	int GetEntry(int key);
-	int GetDistEntry(int key);
+	void InsertEntry(int key, string value);
+	void InsertDistEntry(int key, string value);
+	string GetEntry(int key);
+	string GetDistEntry(int key);
 	bool DeleteEntry(int key);
 	bool DeleteDistEntry(int key);
 };

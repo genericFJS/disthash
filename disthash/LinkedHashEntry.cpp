@@ -1,6 +1,6 @@
 #include "LinkedHashEntry.h"
 
-LinkedHashEntry::LinkedHashEntry(int key, int value) {
+LinkedHashEntry::LinkedHashEntry(int key, string value) {
 	this->key = key;
 	this->value = value;
 	this->next = NULL;
@@ -10,11 +10,11 @@ int LinkedHashEntry::getKey() {
 	return key;
 }
 
-int LinkedHashEntry::getValue() {
+string LinkedHashEntry::getValue() {
 	return value;
 }
 
-void LinkedHashEntry::setValue(int value) {
+void LinkedHashEntry::setValue(string value) {
 	this->value = value;
 }
 
