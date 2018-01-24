@@ -4,11 +4,11 @@
 
 class HashMap {
 private:
-	int tableSize;
 	LinkedHashEntry **table;
 public:
 	HashMap(int tableSize);
 	~HashMap();
+	int GetHashKey(int key);
 	string Get(int key);
 	void Insert(int key, string value);
 	bool Delete(int key);

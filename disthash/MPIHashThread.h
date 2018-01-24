@@ -1,6 +1,6 @@
 #pragma once
 #include "MyLibs.h"
+#include "MPIHash.h"
 
-// thread:
 void* MPIHashThread(void* ptr);
 void KillThread();

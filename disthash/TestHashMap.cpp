@@ -1,10 +1,10 @@
 #include "TestHashMap.h"
 
 TestHashMap::TestHashMap() {
-	HashMap* hashMap = new HashMap(MPIHash::HASHMAP_SIZE);
+	HashMap* hashMap = new HashMap(HASHMAP_SIZE);
 
 	int key1 = 42;
-	int key2 = MPIHash::HASHMAP_SIZE + 42;
+	int key2 = HASHMAP_SIZE + 42;
 	int key3 = 21;
 
 	hashMap->Insert(key1, "Hans");

@@ -3,7 +3,7 @@
 TestMPIComm::TestMPIComm() {
 	string testString = "Brunhilde";
 
-	extern int numTasks, rank;
+	extern int numProcesses, rank;
 	extern MPI_Status status;
 	int dest, source, rc, count, tag = 1;
 	char inmsg, outmsg = 'x';

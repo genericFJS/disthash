@@ -7,21 +7,15 @@
 #include "TestMPIThreads.h"
 #include "MyLibs.h"
 
-int providedThreads, numTasks, rank;
+int providedThreads = 0, numProcesses = 1, rank = 0;
 pthread_t thread;
-MPI_Status status;
 MPI_Comm thread_comm;
-// Inhalt des Action-Tags bestimmt weitere (erwartete) Handlung.
-#define TAG_EXIT		0
-#define TAG_ACTION		1
-#define TAG_KEY			2
-#define TAG_VALUE_SIZE	3	// Alternative zu value-size über send-recieve Austasch wäre probe
-#define TAG_VALUE		4
-enum Actions { delEntry, insEntry, getEntry };
+MPI_Status status;
+MPIHash* mpiHash;
 
 void printOnce(string text) {
 	if (rank == 0) {
-		std::cout << text << std::endl;
+		printf("%s\n", text.c_str());
 	}
 }
 
@@ -37,7 +31,7 @@ void TestTests(int argc, char *argv[]) {
 
 	/* Communication
 	MPI_Init(&argc, &argv);
-	MPI_Comm_size(MPI_COMM_WORLD, &numTasks);
+	MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	printOnce("Test MPI Communication:");
 	printOnce("=======================================");
@@ -47,7 +41,7 @@ void TestTests(int argc, char *argv[]) {
 
 	///* Threads
 	MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &providedThreads);
-	MPI_Comm_size(MPI_COMM_WORLD, &numTasks);
+	MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	printOnce("Test MPI Threads:");
 	printOnce("=======================================");
@@ -67,7 +61,7 @@ void TestTests(int argc, char *argv[]) {
 		for (std::string line; std::getline(std::cin, line);) {
 			if (line == "exit") {
 				int msg = 0;
-				for (int i = rank; i < numTasks - 1; i++) {
+				for (int i = rank; i < numProcesses - 1; i++) {
 					MPI_Send(MPI_BOTTOM, 0, MPI_INT, i + 1, 0, MPI_COMM_WORLD);
 				}
 				//MPI_Bcast(&msg, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -90,17 +84,58 @@ int main(int argc, char *argv[]) {
 	std::locale::global(std::locale(""));
 	std::cout.imbue(std::locale());
 
-	bool test = true;
+	//TestTests(argc, argv);
 
-	if (test) {
-		TestTests(argc, argv);
+	// Die (MPI-)HashMap erstellen.
+	mpiHash = new MPIHash(HASHMAP_SIZE);
+
+	// MPI mit Thread initialisieren.
+	MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &providedThreads);
+	MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	if (providedThreads < MPI_THREAD_FUNNELED)
+		MPI_Abort(MPI_COMM_WORLD, 0);
+
+	// Für jeden Prozess Thread mit gesondertem Communicator erstellen.
+	MPI_Comm_dup(MPI_COMM_WORLD, &thread_comm);
+	pthread_create(&thread, NULL, MPIHashThread, &thread_comm);
+
+	// ================================================================
+	//                      Eigentlicher Prozess
+	// ================================================================
+
+	// MPI_Barrier, um sicherzustellen, dass alle Initialsierungen fertig sind?! Geht nicht.
+	sleep(1);
+	//MPI_Barrier(MPI_COMM_WORLD);
+
+	mpiHash->InsertDistEntry(5, "Karl");
+	mpiHash->GetDistEntry(5);
+	mpiHash->DeleteDistEntry(6);
+	mpiHash->DeleteDistEntry(5);
+	mpiHash->GetDistEntry(5);
+
+	sleep(10);
+	printf("Hallo?\n");
+	// ================================================================
+	// Nur Prozess 0 hat Nutzereingabe für weiter Bedienung.
+	if (rank == 0) {
+		for (std::string line; printf("Command: "), std::getline(std::cin, line);) {
+			if (line == "exit") {
+				int msg = 0;
+				for (int i = rank; i < numProcesses - 1; i++) {
+					MPI_Send(MPI_BOTTOM, 0, MPI_INT, i + 1, TAG_EXIT, MPI_COMM_WORLD);
+				}
+				break;
+			}
+			printf("'%s' is no command.\n", line.c_str());
+		}
 	} else {
-		MPIHash* mpiHash = new MPIHash(MPIHash::HASHMAP_SIZE);
-		//std::cout << "Hello World!" << std::endl;
-
-		mpiHash->InsertDistEntry(5, "Alex");
-		mpiHash->InsertDistEntry(55, "Thomas");
-		mpiHash->InsertDistEntry(56, "Brunhilde");
+		int buf;
+		//MPI_Recv(&buf, 1, MPI_INT, 0, TAG_EXIT, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	}
+	// Beim beenden, Thread auch beenden.
+	KillThread();
+
 	MPI_Finalize();
+	return 0;
 }

@@ -1,12 +1,13 @@
 #include "HashMap.h"
 
+extern int numProcesses;
+
 /// <summary>
 /// Initialisiert die HashMap: Ein Tabelle von LinkedHashEntrys der entsprechenden Größe wird angelegt und vorerst mit NULL gefüllt.
 /// </summary>
 /// <param name="tableSize">Größe der HashMap (Anzahl der Einträge)</param>
 HashMap::HashMap(int tableSize) {
-	this->tableSize = tableSize;
-	table = new LinkedHashEntry*[tableSize];
+	table = new LinkedHashEntry*[HASHMAP_SIZE];
 	for (int i = 0; i < tableSize; i++)
 		table[i] = NULL;
 }
@@ -15,7 +16,7 @@ HashMap::HashMap(int tableSize) {
 /// Alle Elemente von vorhandenen LinkedHashEntrys werden vor dem Löschen der Tabelle gelöscht.
 /// </summary>
 HashMap::~HashMap() {
-	for (int i = 0; i < tableSize; i++) {
+	for (int i = 0; i < HASHMAP_SIZE; i++) {
 		if (table[i] != NULL) {
 			LinkedHashEntry *prevEntry = NULL;
 			LinkedHashEntry *entry = table[i];
@@ -29,13 +30,18 @@ HashMap::~HashMap() {
 	delete[] table;
 }
 
+
+int HashMap::GetHashKey(int key) {
+	return (key / numProcesses) % HASHMAP_SIZE;
+}
+
 /// <summary>
 /// Gibt den Eintrag (Value) des entsprechenden Keys. Dazu wird gegebenenfalls der LinkedHashEntry durchsucht.
 /// </summary>
 /// <param name="key">Key des Eintrags.</param>
-/// <returns>NULL, wenn Key nicht vorhanden. Value, sonst.</returns>
+/// <returns>Leer, wenn Key nicht vorhanden. Value, sonst.</returns>
 string HashMap::Get(int key) {
-	int hash = (key % tableSize);
+	int hash = GetHashKey(key);
 	if (table[hash] == NULL) {
 		return NULL;
 	} else {
@@ -43,7 +49,7 @@ string HashMap::Get(int key) {
 		while (entry != NULL && entry->getKey() != key)
 			entry = entry->getNext();
 		if (entry == NULL)
-			return NULL;
+			return string();
 		else
 			return entry->getValue();
 	}
@@ -56,7 +62,7 @@ string HashMap::Get(int key) {
 /// <param name="key">Der Key des zu erstellenden Eintrags.</param>
 /// <param name="value">Der Value des zu erstellenden Eintrags.</param>
 void HashMap::Insert(int key, string value) {
-	int hash = (key % tableSize);
+	int hash = GetHashKey(key);
 	if (table[hash] == NULL) {
 		table[hash] = new LinkedHashEntry(key, value);
 	} else {
@@ -76,7 +82,7 @@ void HashMap::Insert(int key, string value) {
 /// <param name="key">Der Key des zu löschenden Eintrags.</param>
 /// <returns>true, wenn Eintrag gelöscht wurde. false, wenn Eintrag nicht gelöscht wurde (weil er nicht existiert).</returns>
 bool HashMap::Delete(int key) {
-	int hash = (key % tableSize);
+	int hash = GetHashKey(key);
 	// Überprüfe, ob Element existiert. Sonst kann nichts gelöscht werden.
 	if (table[hash] != NULL) {
 		LinkedHashEntry *prevEntry = NULL;
