@@ -106,21 +106,22 @@ int main(int argc, char *argv[]) {
 	// ================================================================
 
 	// MPI_Barrier, um sicherzustellen, dass alle Initialsierungen fertig sind?! Geht nicht.
-	sleep(1);
+	//sleep(1);
 	//MPI_Barrier(MPI_COMM_WORLD);
 
-	mpiHash->InsertDistEntry(5, "Brunhilde");
-	mpiHash->GetDistEntry(5);
-	mpiHash->DeleteDistEntry(6);
+	//if (rank == 0)
+	//	mpiHash->InsertDistEntry(5, "Brunhilde");
+	//mpiHash->GetDistEntry(5);
+	//mpiHash->DeleteDistEntry(6);
 	mpiHash->DeleteDistEntry(5);
-	mpiHash->GetDistEntry(5);
+	//mpiHash->GetDistEntry(5);
 
-	sleep(1);
-	printf("Hallo?\n");
+	//sleep(2);
+	//printf("Hallo?\n");
 	// ================================================================
 	// Nur Prozess 0 hat Nutzereingabe für weiter Bedienung.
 	if (rank == 0) {
-		for (std::string line; printf("Command: "), std::getline(std::cin, line);) {
+		for (std::string line; std::getline(std::cin, line);) {
 			if (line == "exit") {
 				int msg = 0;
 				for (int i = rank; i < numProcesses - 1; i++) {
@@ -132,7 +133,7 @@ int main(int argc, char *argv[]) {
 		}
 	} else {
 		int buf;
-		//MPI_Recv(&buf, 1, MPI_INT, 0, TAG_EXIT, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		MPI_Recv(&buf, 1, MPI_INT, 0, TAG_EXIT, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	}
 	// Beim beenden, Thread auch beenden.
 	KillThread();

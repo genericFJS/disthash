@@ -43,7 +43,7 @@ int HashMap::GetHashKey(int key) {
 string HashMap::Get(int key) {
 	int hash = GetHashKey(key);
 	if (table[hash] == NULL) {
-		return NULL;
+		return string();
 	} else {
 		LinkedHashEntry *entry = table[hash];
 		while (entry != NULL && entry->getKey() != key)
