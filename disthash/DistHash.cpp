@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 	sleep(1);
 	//MPI_Barrier(MPI_COMM_WORLD);
 
-	mpiHash->InsertDistEntry(5, "Brunhilde");
+	mpiHash->InsertDistEntry(5, 42);
 	mpiHash->GetDistEntry(5);
 	mpiHash->DeleteDistEntry(6);
 	mpiHash->DeleteDistEntry(5);

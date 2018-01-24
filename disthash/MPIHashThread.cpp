@@ -43,56 +43,32 @@ void* MPIHashThread(void* ptr) {
 			case ACTION_INS:
 			{ // Element einfügen.
 				int key;
-				int valueSize;
-				//char* valueArray;
-				string value;
+				int value;
 				printf("Checking key for Process %d.\n", source);
 				// Key herausfinden.
 				MPI_Recv(&key, 1, MPI_INT, source, TAG_KEY, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				printf("Received key %d from Process %d.\n", key, source);
-				// Länge des Values herausfinden.
-				MPI_Recv(&valueSize, 1, MPI_INT, source, TAG_VALUE_SIZE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-				printf("Received length %d.\n", valueSize);
-				// Puffer bereitstellen.
-				//valueArray = new char[valueSize];
-				char valueArray[valueSize];
 				// Value empfangen.
-				printf("Created Buffer. Getting Value.\n");
-				MPI_Recv(valueArray, valueSize, MPI_CHAR, 0, TAG_VALUE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				printf("Getting Value.\n");
+				MPI_Recv(&value, 1, MPI_INT, source, TAG_VALUE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				printf("Got Value.\n");
-				// Value als String speichern.
-				value = valueArray;
 				// Eintrag einfügen.
 				printf("Trying to insert.\n");
 				mpiHash->InsertEntry(key, value);
-				printf("Inserted (%d, %s) from Process %d into HashMap by Process %d.\n", key, valueArray, source, rank);
+				printf("Inserted (%d, %d) from Process %d into HashMap by Process %d.\n", key, value, source, rank);
 				break;
 			}
 			case ACTION_GET:
 			{ // Element holen.
 				int key;
-				int valueSize;
-				char* valueArray;
-				string value = "";
+				int value;
 				// Key herausfinden.
 				MPI_Recv(&key, 1, MPI_INT, source, TAG_KEY, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				// Value holen.
 				value = mpiHash->GetEntry(key);
-				if (value.empty()) {
-					// Falls Eintrag nicht vorhanden, sende negative Value-Länge.
-					valueSize = -1;
-					MPI_Send(&valueSize, 1, MPI_INT, source, TAG_VALUE_SIZE, MPI_COMM_WORLD);
-				} else {
-					// Falls Eintrag vorhanden, sende diesen.
-					valueSize = value.length();
-					valueArray = new char[valueSize];
-					strcpy(valueArray, value.c_str());
-					// Sende Länge des Values.
-					MPI_Send(&valueSize, 1, MPI_INT, source, TAG_VALUE_SIZE, MPI_COMM_WORLD);
-					// Sende Value.
-					MPI_Send(valueArray, valueSize, MPI_CHAR, source, TAG_VALUE, MPI_COMM_WORLD);
-					printf("Got (%d, %s) for Process %d from HashMap by Process %d.\n", key, valueArray, source, rank);
-				}
+				// Sende Value.
+				MPI_Send(&value, 1, MPI_INT, source, TAG_VALUE, MPI_COMM_WORLD);
+				printf("Got (%d, %d) for Process %d from HashMap by Process %d.\n", key, value, source, rank);
 				break;
 			}
 			default:

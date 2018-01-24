@@ -9,7 +9,7 @@ public:
 	HashMap(int tableSize);
 	~HashMap();
 	int GetHashKey(int key);
-	string Get(int key);
-	void Insert(int key, string value);
+	int Get(int key);
+	void Insert(int key, int value);
 	bool Delete(int key);
 };
