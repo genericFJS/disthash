@@ -2,6 +2,7 @@
 import getpass
 import os
 import sys
+import socket
 
 
 def ssh_check(host, user, password, timeout=30):
@@ -24,6 +25,7 @@ def ssh_check(host, user, password, timeout=30):
         child.sendline(password)
         print('{:10s} online (password entered)'.format(host_out))
     except pexpect.exceptions.TIMEOUT:
+        # print(child.before.decode("utf-8"))
         if child.before.decode("utf-8") == "":
             print('{:10s} OFFLINE'.format(host_out))
             return 1
@@ -38,10 +40,8 @@ def ssh_check(host, user, password, timeout=30):
 
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
-    # user_inp = input("    user: ")
-    # pw_inp = getpass.getpass('password: ')
-    user_inp = "s74053"
-    pw_inp = "***REMOVED***"
+    user_inp = input("    user: ")
+    pw_inp = getpass.getpass('password: ')
 
     working_machines = open('../machines/machinefile', 'w')
 
@@ -49,7 +49,9 @@ if __name__ == "__main__":
         try:
             for machine in f:
                 if ssh_check(machine, user_inp, pw_inp, 1) == 0:
-                    working_machines.write(machine)
+                    machine_ip = socket.gethostbyname(machine.strip())
+                    print('\tAdding ' + format(machine_ip) + ' as machine.')
+                    working_machines.write(machine_ip + "\n")
         except (KeyboardInterrupt, SystemExit):
             print("Exiting...")
 
