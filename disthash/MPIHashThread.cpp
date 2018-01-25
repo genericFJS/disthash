@@ -1,13 +1,12 @@
 #include "MPIHashThread.h"
 
 extern int rank;
-extern MPI_Comm thread_comm;
-extern MPI_Status status;
 extern MPIHash* mpiHash;
 
 void* MPIHashThread(void* ptr) {
 	int actionCode;
 	MPI_Comm thread_comm = *(MPI_Comm*)ptr;
+	MPI_Status status;
 	int len;
 	char name[MPI_MAX_PROCESSOR_NAME];
 	MPI_Get_processor_name(name, &len);
@@ -17,10 +16,10 @@ void* MPIHashThread(void* ptr) {
 	while (true) {
 		printf("\x1B[%dmWaiting for something to happen in Process %d.\x1B[0m\n", 31 + rank, rank);
 		// Warte, bis eine Aktion gesendet wird.
-		MPI_Recv(&actionCode, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, thread_comm, &status);
-		printf("\x1B[%dmGot action in Process %d.\x1B[0m\n", 31 + rank, rank);
+		MPI_Recv(&actionCode, 500, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, thread_comm, &status);
 		int action = status.MPI_TAG;
 		int source = status.MPI_SOURCE;
+		printf("\x1B[%dmGot action in Process %d by %d.\x1B[0m\n", 31 + rank, rank, source);
 		// Action-Tag gibt an, was geschehen soll.
 		//========================================
 		if (action == TAG_ACTION) {
@@ -49,23 +48,23 @@ void* MPIHashThread(void* ptr) {
 				int key;
 				int valueSize;
 				string value;
-				printf("Checking key for Process %d.\n", source);
+				//printf("Checking key for Process %d.\n", source);
 				// Key herausfinden.
 				MPI_Recv(&key, 1, MPI_INT, source, TAG_KEY, thread_comm, MPI_STATUS_IGNORE);
-				printf("Received key %d from Process %d.\n", key, source);
+				//printf("Received key %d from Process %d.\n", key, source);
 				// Länge des Values herausfinden.
 				MPI_Recv(&valueSize, 1, MPI_INT, source, TAG_VALUE_SIZE, thread_comm, MPI_STATUS_IGNORE);
-				printf("Received length %d.\n", valueSize);
+				//printf("Received length %d.\n", valueSize);
 				// Puffer bereitstellen.
 				char valueArray[valueSize];
 				// Value empfangen.
-				printf("Created Buffer. Getting Value.\n");
+				//printf("Created Buffer. Getting Value.\n");
 				MPI_Recv(valueArray, valueSize, MPI_CHAR, source, TAG_VALUE, thread_comm, MPI_STATUS_IGNORE);
-				printf("Got Value.\n");
+				//printf("Got Value.\n");
 				// Value als String speichern.
 				value = valueArray;
 				// Eintrag einfügen.
-				printf("Trying to insert.\n");
+				//printf("Trying to insert.\n");
 				mpiHash->InsertEntry(key, value);
 				printf("\x1B[%dmInserted (%d, %s) from Process %d into HashMap by Process %d.\x1B[0m\n", 31+rank, key, valueArray, source, rank);
 				break;
@@ -120,5 +119,6 @@ void* MPIHashThread(void* ptr) {
 /// Sendet MPI-Nachricht, um eigenen Thread zu stoppen.
 /// </summary>
 void KillThread() {
+	extern MPI_Comm thread_comm;
 	MPI_Ssend(MPI_BOTTOM, 0, MPI_INT, rank, TAG_EXIT, thread_comm);
 }

@@ -74,6 +74,7 @@ void HashMap::Insert(int key, string value) {
 		else
 			entry->setNext(new LinkedHashEntry(key, value));
 	}
+	printf("Inserted: %d, %s.\n", key, this->Get(key).c_str());
 }
 
 /// <summary>
@@ -92,7 +93,7 @@ bool HashMap::Delete(int key) {
 			prevEntry = entry;
 			entry = entry->getNext();
 		}
-		// Wenn Element gefunden (oder letztes Element), lösche es.
+		// Wenn Element gefunden, lösche es.
 		if (entry->getKey() == key) {
 			// Wenn Element am Anfang steht, lösche es und setze das nächste Element als Startelement des LinkedHashEntry. Ansonsten nehme Element aus dem LinkedHashEntry.
 			if (prevEntry == NULL) {
@@ -104,6 +105,8 @@ bool HashMap::Delete(int key) {
 				delete entry;
 				prevEntry->setNext(next);
 			}
+			printf("Deleted: %d.\n", key);
+			return true;
 		} else {
 			return false;
 		}

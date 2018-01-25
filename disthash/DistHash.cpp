@@ -110,10 +110,24 @@ int main(int argc, char *argv[]) {
 	//MPI_Barrier(MPI_COMM_WORLD);
 
 	//if (rank == 0)
-	//	mpiHash->InsertDistEntry(5, "Brunhilde");
+	if (rank == (1 % numProcesses)) {
+		mpiHash->InsertDistEntry(6, "Mechthild");
+	}
+	if (rank == (2 % numProcesses)) {
+		//usleep(100);
+		mpiHash->InsertDistEntry(5, "Karl");
+	}
+	if (rank == (3 % numProcesses)) {
+		//mpiHash->GetDistEntry(5);
+		//sleep(1);
+		//mpiHash->GetDistEntry(5);
+		//mpiHash->GetDistEntry(6);
+		usleep(200);
+		mpiHash->DeleteDistEntry(6);
+	}
 	//mpiHash->GetDistEntry(5);
 	//mpiHash->DeleteDistEntry(6);
-	mpiHash->DeleteDistEntry(5);
+	//mpiHash->DeleteDistEntry(5);
 	//mpiHash->GetDistEntry(5);
 
 	//sleep(2);

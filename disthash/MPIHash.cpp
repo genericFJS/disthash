@@ -41,19 +41,19 @@ void MPIHash::InsertDistEntry(int key, string value) {
 	MPI_Ssend(&action, 1, MPI_INT, destination, TAG_ACTION, thread_comm);
 	printf("\x1B[%dmRequest to insert (%d, %s) into Process' %d HashMap for Process %d sent.\x1B[0m\n", 31+rank, key, value.c_str(), destination, rank);
 	// Key senden.
-	printf("\t SEND KEY from %d.\n", rank);
+	//printf("\t SEND KEY from %d.\n", rank);
 	MPI_Ssend(&key, 1, MPI_INT, destination, TAG_KEY, thread_comm);
-	printf("\t KEY SENT from %d.\n", rank);
+	//printf("\t KEY SENT from %d.\n", rank);
 	// Value senden.
 	valueSize = value.size();
 	// Sende Länge des Values.
-	printf("\t SEND VALUE SIZE %d from %d.\n", valueSize, rank);
+	//printf("\t SEND VALUE SIZE %d from %d.\n", valueSize, rank);
 	MPI_Ssend(&valueSize, 1, MPI_INT, destination, TAG_VALUE_SIZE, thread_comm);
-	printf("\t VALUE SIZE SENT from %d.\n", rank);
+	//printf("\t VALUE SIZE SENT from %d.\n", rank);
 	// Sende Value.
-	printf("\t SEND VALUE from %d.\n", rank);
+	//printf("\t SEND VALUE from %d.\n", rank);
 	MPI_Ssend(value.c_str(), valueSize, MPI_CHAR, destination, TAG_VALUE, thread_comm);
-	printf("\t VALUE SENT from %d.\n", rank);
+	//printf("\t VALUE SENT from %d.\n", rank);
 }
 
 
@@ -98,6 +98,6 @@ bool MPIHash::DeleteDistEntry(int key) {
 	MPI_Recv(&feedback, 1, MPI_INT, destination, TAG_FEEDBACK, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	if (feedback == 1) 
 		deleted = true;
-	printf("\x1B[%dmDelete entry (%d, ?) in Process' %d HashMap for Process %d complete.\x1B[0m\n", 31 + rank, key, destination, rank);
+	//printf("\x1B[%dmDelete entry (%d, ?) in Process' %d HashMap for Process %d complete.\x1B[0m\n", 31 + rank, key, destination, rank);
 	return deleted;
 }
