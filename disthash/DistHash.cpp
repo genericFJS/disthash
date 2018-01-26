@@ -20,16 +20,16 @@ void printOnce(string text) {
 }
 
 void TestTests(int argc, char *argv[]) {
-	/* HashMap
+	///* HashMap
 	printOnce("Test HashMap:");
 	printOnce("=======================================");
 	if (rank == 0) {
 		TestHashMap* testHashMap = new TestHashMap();
 	}
 	printOnce("---------------------------------------");
-	*/
+	//*/
 
-	///* Communication
+	/* Communication
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -37,7 +37,7 @@ void TestTests(int argc, char *argv[]) {
 	//printOnce("=======================================");
 	TestMPIComm* testMPIComm = new TestMPIComm();
 	//printOnce("---------------------------------------");
-	//*/
+	*/
 
 	/* Threads
 	MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &providedThreads);
@@ -104,34 +104,17 @@ int main(int argc, char *argv[]) {
 	// ================================================================
 	//                      Eigentlicher Prozess
 	// ================================================================
-
-	// MPI_Barrier, um sicherzustellen, dass alle Initialsierungen fertig sind?! Geht nicht.
-	//sleep(1);
-	//MPI_Barrier(MPI_COMM_WORLD);
-
-	//if (rank == 0)
-	if (rank == (1 % numProcesses)) {
+	
+	//if (rank == (1 % numProcesses)) {
 		mpiHash->InsertDistEntry(6, "Mechthild");
-	}
-	if (rank == (2 % numProcesses)) {
-		//usleep(100);
+	//}
+	/*if (rank == (2 % numProcesses)) {
 		mpiHash->InsertDistEntry(5, "Karl");
-	}
+	}*/
 	if (rank == (3 % numProcesses)) {
-		//mpiHash->GetDistEntry(5);
-		//sleep(1);
-		//mpiHash->GetDistEntry(5);
-		//mpiHash->GetDistEntry(6);
 		usleep(200);
 		mpiHash->DeleteDistEntry(6);
 	}
-	//mpiHash->GetDistEntry(5);
-	//mpiHash->DeleteDistEntry(6);
-	//mpiHash->DeleteDistEntry(5);
-	//mpiHash->GetDistEntry(5);
-
-	//sleep(2);
-	//printf("Hallo?\n");
 	// ================================================================
 	// Nur Prozess 0 hat Nutzereingabe für weiter Bedienung.
 	if (rank == 0) {

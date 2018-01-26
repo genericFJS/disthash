@@ -1,15 +1,6 @@
 #include "mpi.h"
 #include <pthread.h>
-#include <stdio.h>
 #include <unistd.h>
-#include <iostream>
-#include <locale>
-#include <clocale>
-#include <stddef.h>
-#include <string>
-#include <cstring>
-using std::string;
-using std::strcpy;
 
 #define TAG_EXIT 0
 #define TAG_CONTENT 1
@@ -21,7 +12,6 @@ void* testThread(void* ptr) {
 	MPI_Comm thread_comm = *(MPI_Comm*)ptr;
 	MPI_Status status;
 	while (1) {
-		//MPI_Recv(&buf, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 		printf("\t\tWaiting for message on thread in %d.\n", rank);
 		MPI_Recv(&buf, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, thread_comm, &status);
 		if (status.MPI_TAG == TAG_EXIT)
@@ -29,11 +19,20 @@ void* testThread(void* ptr) {
 		printf("\t\t%d: Received %d from %d.\n", rank, buf, status.MPI_SOURCE);
 	}
 	printf("\t\tLeaving thread %d.\n", rank);
+	/*
+		Idee: Threads potentiell gemeinsam beenden? MPI Barrier funktioniert nicht (s.o.)
+	*/
 	//MPI_Barrier(thread_comm);
 	pthread_exit((void *)NULL);
 }
 
 int main(int argc, char *argv[]) {
+	/*
+		Kompiliern über bspw.
+			mpic++ ThreadComm.cpp -o threadComm -lpthread
+		Ausführen über (braucht machinefile; getestet mit machinefile die alle isys-Rechner enthält):
+			mpiexec -f machinefile -n 3 ./threadComm
+	*/
 	int data = 42, recipient;
 	pthread_t thread;
 	MPI_Comm thread_comm, main_comm;
@@ -50,12 +49,19 @@ int main(int argc, char *argv[]) {
 	MPI_Comm_dup(MPI_COMM_WORLD, &main_comm);
 	// Für jeden Prozess Thread mit gesondertem Communicator erstellen.
 	MPI_Comm_dup(MPI_COMM_WORLD, &thread_comm);
+	/*
+		Thread erstellen. Wird kein Thread erstellt (und die entsprechenden Send/Receive auskommentiert), so funktioniert MPI Barrier usw.
+	*/
 	pthread_create(&thread, NULL, testThread, &thread_comm);
 
-	// ================================================================
-	//                      Eigentlicher Prozess
-	// ================================================================
+	/* 
+		MPI Barrier hier, um sicher zu stellen, dass alle Threads gestartet sind. MPI_Barrier funktioniert nicht!
+	*/
+	//MPI_Barrier(main_comm);
 
+	/* 
+		Code funktioniert (bei n=3) nicht, wenn es vom Prozess 2 ausgeführt wird (der an 1 sendet). Warum? (kommentiert man if... ein, so geht es entsprechend)
+	*/
 	//if (rank == 0) {
 		recipient = (rank + 1)% numProcesses;
 		printf("Sending something from %d to %d.\n", rank, recipient);
@@ -63,15 +69,18 @@ int main(int argc, char *argv[]) {
 		MPI_Ssend(&data, 1, MPI_INT, recipient, TAG_CONTENT, thread_comm);
 	//}
 
-	// ================================================================
-
-	sleep(5);
-	//usleep(500);
-	printf("Process %d waiting to exit.\n", rank);
+	/*
+		MPI Barrier hier, damit kein Prozess/Thread beendet wird, bevor nicht alle ihre Aufgaben abgearbeitet haben. Geht nicht (s.o.)
+	*/
+	sleep(2);
 	//MPI_Barrier(main_comm);
-	//printf("Process %d telling thread to leave.\n", rank);
+	printf("Process %d waiting to exit.\n", rank);
+	printf("Process %d telling thread to leave.\n", rank);
 	MPI_Ssend(MPI_BOTTOM, 0, MPI_INT, rank, TAG_EXIT, thread_comm);
-	//printf("Process %d waiting to for all threads to be closed.\n", rank);
+	printf("Process %d waiting to for all threads to be closed.\n", rank);
+	/*
+		MPI Barrier hier, damit alle Threads beendet sind, bevor Finalized wird. Geht nicht (s.o.)
+	*/
 	//MPI_Barrier(main_comm);
 
 	MPI_Finalize();

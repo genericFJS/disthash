@@ -9,11 +9,11 @@ TestHashMap::TestHashMap() {
 
 	hashMap->Insert(key1, "Hans");
 	hashMap->Insert(key2, "Brunhilde");
-	hashMap->Insert(key3, "Günter");
+	hashMap->Insert(key3, "Franz");
 
-	std::cout << "Eintrag " << key1 << " enthält " << hashMap->Get(key1) << "." << std::endl;
-	std::cout << "Eintrag " << key2 << " enthält " << hashMap->Get(key2) << "." << std::endl;
-	std::cout << "Eintrag " << key3 << " enthält " << hashMap->Get(key3) << "." << std::endl;
+	std::cout << "Entry " << key1 << " contains " << hashMap->Get(key1) << "." << std::endl;
+	std::cout << "Entry " << key2 << " contains " << hashMap->Get(key2) << "." << std::endl;
+	std::cout << "Entry " << key3 << " contains " << hashMap->Get(key3) << "." << std::endl;
 }
 
 
