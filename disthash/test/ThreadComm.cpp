@@ -39,14 +39,12 @@ int main(int argc, char *argv[]) {
 	MPI_Status status;
 
 	// MPI mit Thread initialisieren.
-	MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &providedThreads);
+	MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &providedThreads);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	if (providedThreads < MPI_THREAD_FUNNELED)
+	if (providedThreads < MPI_THREAD_MULTIPLE)
 		MPI_Abort(MPI_COMM_WORLD, 0);
 
-	// Communicator für Hauptanwendung
-	MPI_Comm_dup(MPI_COMM_WORLD, &main_comm);
 	// Für jeden Prozess Thread mit gesondertem Communicator erstellen.
 	MPI_Comm_dup(MPI_COMM_WORLD, &thread_comm);
 	/*
@@ -57,7 +55,7 @@ int main(int argc, char *argv[]) {
 	/* 
 		MPI Barrier hier, um sicher zu stellen, dass alle Threads gestartet sind. MPI_Barrier funktioniert nicht!
 	*/
-	//MPI_Barrier(main_comm);
+	MPI_Barrier(MPI_COMM_WORLD);
 
 	/* 
 		Code funktioniert (bei n=3) nicht, wenn es vom Prozess 2 ausgeführt wird (der an 1 sendet). Warum? (kommentiert man if... ein, so geht es entsprechend)
@@ -72,8 +70,8 @@ int main(int argc, char *argv[]) {
 	/*
 		MPI Barrier hier, damit kein Prozess/Thread beendet wird, bevor nicht alle ihre Aufgaben abgearbeitet haben. Geht nicht (s.o.)
 	*/
-	sleep(2);
-	//MPI_Barrier(main_comm);
+	//sleep(2);
+	MPI_Barrier(MPI_COMM_WORLD);
 	printf("Process %d waiting to exit.\n", rank);
 	printf("Process %d telling thread to leave.\n", rank);
 	MPI_Ssend(MPI_BOTTOM, 0, MPI_INT, rank, TAG_EXIT, thread_comm);
