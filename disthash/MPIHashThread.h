@@ -3,4 +3,4 @@
 #include "MPIHash.h"
 
 void* MPIHashThread(void* ptr);
-void KillThread();
+bool KillThread();

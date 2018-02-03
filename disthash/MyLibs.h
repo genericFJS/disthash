@@ -1,19 +1,30 @@
 #pragma once
 #include "mpi.h"
-#include <pthread.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <iostream>
-#include <locale>
-#include <clocale>
+#include <pthread.h>	// Thread
+#include <stdio.h>		// printf
 #include <stddef.h>
-#include <string>
-#include <cstring>
+#include <stdarg.h>
+#include <getopt.h>		// Argumente auslesen
+#include <unistd.h>		// Sleep
+#include <iostream>		// Eingabe
+#include <string>		// String C++
+#include <cstring>		// String C
+#include <fstream>		// Datei lesen
+#include <iterator>		// Zeilen zählen
+#include <algorithm>	// Zeilen zählen (count)
 using std::string;
 using std::strcpy;
 
-// Größe der HashMap (pro Prozess)
-#define HASHMAP_SIZE 50
+// Größe der HashMap (pro Prozess).
+#define HASHMAP_SIZE 4096
+
+// Anzahl der Einträge, die zufällig Eingefügt/Gelöscht/Abgefragt werden sollen.
+#define RANDOM_TESTS 258000
+#define RANDOM_GET_PERCENT 45
+#define RANDOM_DEL_PERCENT 10
+#define RANDOM_INS_PERCENT 45	// wird nicht genutzt, ergibt sich eigentlich implizit
+#define RANDOM_MIN_STRING_LENGTH 5
+#define RANDOM_MAX_STRING_LENGTH 20
 
 // Inhalt von TAG_ACTION bestimmt weitere (erwartete) Handlung.
 #define TAG_EXIT		0
@@ -26,3 +37,5 @@ using std::strcpy;
 #define ACTION_DEL		10
 #define ACTION_INS		11
 #define ACTION_GET		12
+
+void PrintColored(const char * fmt, ...);

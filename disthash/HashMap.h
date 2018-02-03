@@ -5,6 +5,7 @@
 class HashMap {
 private:
 	LinkedHashEntry **table;
+	int tableSize;
 public:
 	HashMap(int tableSize);
 	~HashMap();

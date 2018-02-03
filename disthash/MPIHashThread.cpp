@@ -8,18 +8,18 @@ void* MPIHashThread(void* ptr) {
 	MPI_Comm thread_comm = *(MPI_Comm*)ptr;
 	MPI_Status status;
 	int len;
-	char name[MPI_MAX_PROCESSOR_NAME];
-	MPI_Get_processor_name(name, &len);
-	printf("\x1B[%dmStarting thread for Process %d on %s.\x1B[0m\n", 31 + rank, rank, name);
+	// char name[MPI_MAX_PROCESSOR_NAME];
+	// MPI_Get_processor_name(name, &len);
+	// PrintColored("\tStarting thread for Process %d on %s.\n", rank, name);
 
 	// Schleife zum Abarbeiten von HashMap-Aktivtäten
 	while (true) {
-		printf("\x1B[%dmWaiting for something to happen in Process %d.\x1B[0m\n", 31 + rank, rank);
+		// PrintColored("\tWaiting for something to happen in Process %d.\n", rank);
 		// Warte, bis eine Aktion gesendet wird.
 		MPI_Recv(&actionCode, 500, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, thread_comm, &status);
 		int action = status.MPI_TAG;
 		int source = status.MPI_SOURCE;
-		printf("\x1B[%dmGot action in Process %d by %d.\x1B[0m\n", 31 + rank, rank, source);
+		// PrintColored("\tGot action in Process %d by %d.\n", rank, source);
 		// Action-Tag gibt an, was geschehen soll.
 		//========================================
 		if (action == TAG_ACTION) {
@@ -38,9 +38,9 @@ void* MPIHashThread(void* ptr) {
 				// Feedback senden.
 				MPI_Ssend(&feedback, 1, MPI_INT, source, TAG_FEEDBACK, MPI_COMM_WORLD);
 				if (deleted)
-					printf("\x1B[%dmDeleted (%d, -) for Process %d from HashMap by Process %d.\x1B[0m\n", 31+rank, key, source, rank);
+					PrintColored("\tDeleted (%d, -) for Process %d from HashMap by Process %d.\n", key, source, rank);
 				else
-					printf("\x1B[%dmCould not delete (%d, -) for Process %d from HashMap by Process %d.\x1B[0m\n", 31+rank, key, source, rank);
+					PrintColored("\tCould not delete (%d, -) for Process %d from HashMap by Process %d.\n", key, source, rank);
 				break;
 			}
 			case ACTION_INS:
@@ -66,7 +66,7 @@ void* MPIHashThread(void* ptr) {
 				// Eintrag einfügen.
 				//printf("Trying to insert.\n");
 				mpiHash->InsertEntry(key, value);
-				printf("\x1B[%dmInserted (%d, %s) from Process %d into HashMap by Process %d.\x1B[0m\n", 31+rank, key, valueArray, source, rank);
+				PrintColored("\tInserted (%d, %s) from Process %d into HashMap by Process %d.\n", key, valueArray, source, rank);
 				break;
 			}
 			case ACTION_GET:
@@ -78,12 +78,12 @@ void* MPIHashThread(void* ptr) {
 				// Key herausfinden.
 				MPI_Recv(&key, 1, MPI_INT, source, TAG_KEY, thread_comm, MPI_STATUS_IGNORE);
 				// Value holen.
-				printf("Get value.\n");
 				value = mpiHash->GetEntry(key);
 				if (value.empty()) {
 					// Falls Eintrag nicht vorhanden, sende negative Value-Länge.
 					valueSize = -1;
 					MPI_Ssend(&valueSize, 1, MPI_INT, source, TAG_VALUE_SIZE, MPI_COMM_WORLD);
+					PrintColored("\tEntry (%d, ?) for Process %d from HashMap by Process %d is empty.\n", key, source, rank);
 				} else {
 					// Falls Eintrag vorhanden, sende diesen.
 					valueSize = value.length();
@@ -93,7 +93,7 @@ void* MPIHashThread(void* ptr) {
 					MPI_Ssend(&valueSize, 1, MPI_INT, source, TAG_VALUE_SIZE, MPI_COMM_WORLD);
 					// Sende Value.
 					MPI_Ssend(valueArray, valueSize, MPI_CHAR, source, TAG_VALUE, MPI_COMM_WORLD);
-					printf("\x1B[%dmGot (%d, %s) for Process %d from HashMap by Process %d.\x1B[0m\n", 31+rank, key, valueArray, source, rank);
+					PrintColored("\tGot (%d, %s) for Process %d from HashMap by Process %d.\n", key, valueArray, source, rank);
 				}
 				break;
 			}
@@ -105,20 +105,22 @@ void* MPIHashThread(void* ptr) {
 
 		} else if (action == TAG_EXIT) {
 			// Aus Loop ausbrechen und Thread beenden (sollte nur zum Beenden ausgeführt werden).
-			printf("Terminating thread.\n");
+			//PrintColored("\tBye from Process %d.\n", rank);
 			break;
 		} else {
 		WrongTag:
-			printf("Warning: Tag %d from Process %d not applicable in this context.\n", action, source);
+			PrintColored("\tWarning: Tag %d from Process %d not applicable in this context.\n", action, source);
 		}
 	}
+	// PrintColored("\tBye from thread %d.\n", rank);
 	pthread_exit((void *)NULL);
 }
 
 /// <summary>
 /// Sendet MPI-Nachricht, um eigenen Thread zu stoppen.
 /// </summary>
-void KillThread() {
+bool KillThread() {
 	extern MPI_Comm thread_comm;
 	MPI_Ssend(MPI_BOTTOM, 0, MPI_INT, rank, TAG_EXIT, thread_comm);
+	return true;
 }

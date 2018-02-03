@@ -7,7 +7,8 @@ extern int numProcesses;
 /// </summary>
 /// <param name="tableSize">Größe der HashMap (Anzahl der Einträge)</param>
 HashMap::HashMap(int tableSize) {
-	table = new LinkedHashEntry*[HASHMAP_SIZE];
+	table = new LinkedHashEntry*[tableSize];
+	this->tableSize = tableSize;
 	for (int i = 0; i < tableSize; i++)
 		table[i] = NULL;
 }
@@ -16,7 +17,7 @@ HashMap::HashMap(int tableSize) {
 /// Alle Elemente von vorhandenen LinkedHashEntrys werden vor dem Löschen der Tabelle gelöscht.
 /// </summary>
 HashMap::~HashMap() {
-	for (int i = 0; i < HASHMAP_SIZE; i++) {
+	for (int i = 0; i < tableSize; i++) {
 		if (table[i] != NULL) {
 			LinkedHashEntry *prevEntry = NULL;
 			LinkedHashEntry *entry = table[i];
@@ -32,7 +33,7 @@ HashMap::~HashMap() {
 
 
 int HashMap::GetHashKey(int key) {
-	return (key / numProcesses) % HASHMAP_SIZE;
+	return (key / numProcesses) % tableSize;
 }
 
 /// <summary>
@@ -74,7 +75,7 @@ void HashMap::Insert(int key, string value) {
 		else
 			entry->setNext(new LinkedHashEntry(key, value));
 	}
-	printf("Inserted: %d, %s.\n", key, this->Get(key).c_str());
+	//printf("Inserted: %d, %s.\n", key, this->Get(key).c_str());
 }
 
 /// <summary>
@@ -105,7 +106,7 @@ bool HashMap::Delete(int key) {
 				delete entry;
 				prevEntry->setNext(next);
 			}
-			printf("Deleted: %d.\n", key);
+			//printf("Deleted: %d.\n", key);
 			return true;
 		} else {
 			return false;
