@@ -403,6 +403,7 @@ local.properties
 # =========================
 # nicht benötigtes
 examples/
+compatibility/
 # ignoriere Dateien
 *.pdf
 *.psd
