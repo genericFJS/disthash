@@ -16,9 +16,6 @@
     <Filter Include="Source Files\Tests">
       <UniqueIdentifier>{96b489e4-af9c-45b2-8189-ad54ec022ffc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Tests">
-      <UniqueIdentifier>{5b0bacbe-1ddf-4c56-91a5-ff530bc53b69}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HashMap.cpp">
@@ -36,20 +33,17 @@
     <ClCompile Include="MPIHashThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\ThreadComm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MyLibs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test\TestHashMap.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="test\TestMPIComm.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Tests</Filter>
     </ClCompile>
-    <ClCompile Include="test\TestMPIThreads.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="test\ThreadComm.cpp">
+      <Filter>Source Files\Tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -66,15 +60,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MPIHashThread.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TestHashMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TestMPIComm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TestMPIThreads.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -146,9 +146,6 @@
     <ClInclude Include="MPIHash.h" />
     <ClInclude Include="MPIHashThread.h" />
     <ClInclude Include="MyLibs.h" />
-    <ClInclude Include="test\TestHashMap.h" />
-    <ClInclude Include="test\TestMPIComm.h" />
-    <ClInclude Include="test\TestMPIThreads.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DistHash.cpp" />
@@ -159,7 +156,6 @@
     <ClCompile Include="MyLibs.cpp" />
     <ClCompile Include="test\TestHashMap.cpp" />
     <ClCompile Include="test\TestMPIComm.cpp" />
-    <ClCompile Include="test\TestMPIThreads.cpp" />
     <ClCompile Include="test\ThreadComm.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

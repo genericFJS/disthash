@@ -42,6 +42,7 @@ bool MPIHash::DeleteEntry(int key) {
 void MPIHash::InsertDistEntry(int key, string value) {
 	int destination;
 	int valueSize;
+	char* valueArray;
 	int action = ACTION_INS;
 	if (mode == 2 || (mode == 1 && rank == 0)) {
 		// DISTRIBUTED / REMOTE 0
@@ -51,12 +52,16 @@ void MPIHash::InsertDistEntry(int key, string value) {
 		PrintColored("Request to insert (%d, %s) into Process' %d HashMap for Process %d sent.\n", key, value.c_str(), destination, rank);
 		// Key senden.
 		MPI_Ssend(&key, 1, MPI_INT, destination, TAG_KEY, thread_comm);
-		// Value senden.
-		valueSize = value.size();
+		// Value Größe ermitteln.
+		valueSize = value.size() + 1; 
+		// Value in char-Array zwischen speichen.
+		valueArray = new char[valueSize];
+		value.copy(valueArray, valueSize);
+		valueArray[valueSize - 1] = '\0';
 		// Sende Länge des Values.
 		MPI_Ssend(&valueSize, 1, MPI_INT, destination, TAG_VALUE_SIZE, thread_comm);
 		// Sende Value.
-		MPI_Ssend(value.c_str(), valueSize, MPI_CHAR, destination, TAG_VALUE, thread_comm);
+		MPI_Ssend(valueArray, valueSize, MPI_CHAR, destination, TAG_VALUE, thread_comm);
 	} else if (mode == 0) {
 		// LOCAL
 		this->InsertEntry(key, value);
@@ -69,6 +74,7 @@ string MPIHash::GetDistEntry(int key) {
 	string value;
 	int destination;
 	int valueSize;
+	char* valueArray;
 	int action = ACTION_GET;
 	if (mode == 2 || (mode == 1 && rank == 0)) {
 		// DISTRIBUTED / REMOTE 0
@@ -85,7 +91,7 @@ string MPIHash::GetDistEntry(int key) {
 			value = "N/A";
 		} else {
 			// Puffer bereitstellen.
-			char valueArray[valueSize];
+			valueArray = new char[valueSize];
 			// Value empfangen.
 			MPI_Recv(valueArray, valueSize, MPI_CHAR, destination, TAG_VALUE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			// Value als String speichern.

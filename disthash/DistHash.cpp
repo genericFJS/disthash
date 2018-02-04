@@ -203,7 +203,8 @@ int main(int argc, char *argv[]) {
 
 	// Erstelle Zwischenspeicher
 	int processEntrys = (dataEntrys - 1) / numProcesses;
-	string inputData[processEntrys];
+	//string inputData[processEntrys];
+	string* inputData = new string[processEntrys];
 
 	string entry;
 	int line = -1;
@@ -231,7 +232,7 @@ int main(int argc, char *argv[]) {
 			index++;
 		}
 		// Speicher Eintrag in Zwischenspeicher
-		string data = entryValues[1].substr(1, (entryValues[1]).size() - 2) + " (" + entryValues[0] + ": ~" + std::to_string(std::stod(entryValues[2]) * 100) + "%)";
+		string data = entryValues[1].substr(1, (entryValues[1]).size() - 2) + " [" + entryValues[0] + ": ~" + std::to_string(std::stod(entryValues[2]) * 100) + "%]";
 
 		inputData[(line - 1) % processEntrys] = data;
 	}

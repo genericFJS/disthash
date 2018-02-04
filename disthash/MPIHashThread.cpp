@@ -47,6 +47,7 @@ void* MPIHashThread(void* ptr) {
 			{ // Element einfügen.
 				int key;
 				int valueSize;
+				char* valueArray;
 				string value;
 				//printf("Checking key for Process %d.\n", source);
 				// Key herausfinden.
@@ -56,7 +57,7 @@ void* MPIHashThread(void* ptr) {
 				MPI_Recv(&valueSize, 1, MPI_INT, source, TAG_VALUE_SIZE, thread_comm, MPI_STATUS_IGNORE);
 				//printf("Received length %d.\n", valueSize);
 				// Puffer bereitstellen.
-				char valueArray[valueSize];
+				valueArray = new char[valueSize];
 				// Value empfangen.
 				//printf("Created Buffer. Getting Value.\n");
 				MPI_Recv(valueArray, valueSize, MPI_CHAR, source, TAG_VALUE, thread_comm, MPI_STATUS_IGNORE);
@@ -86,9 +87,10 @@ void* MPIHashThread(void* ptr) {
 					PrintColored("\tEntry (%d, ?) for Process %d from HashMap by Process %d is empty.\n", key, source, rank);
 				} else {
 					// Falls Eintrag vorhanden, sende diesen.
-					valueSize = value.length();
-					valueArray = new char[valueSize];
-					strcpy(valueArray, value.c_str());
+					valueSize = value.size() + 1;
+					char* valueArray = new char[valueSize];
+					value.copy(valueArray, valueSize);
+					valueArray[valueSize - 1] = '\0';
 					// Sende Länge des Values.
 					MPI_Ssend(&valueSize, 1, MPI_INT, source, TAG_VALUE_SIZE, MPI_COMM_WORLD);
 					// Sende Value.
