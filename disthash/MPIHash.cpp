@@ -53,7 +53,7 @@ void MPIHash::InsertDistEntry(int key, string value) {
 		// Key senden.
 		MPI_Ssend(&key, 1, MPI_INT, destination, TAG_KEY, thread_comm);
 		// Value Größe ermitteln.
-		valueSize = value.size() + 1; 
+		valueSize = value.size() + 1;
 		// Value in char-Array zwischen speichen.
 		valueArray = new char[valueSize];
 		value.copy(valueArray, valueSize);

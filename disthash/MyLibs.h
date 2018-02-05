@@ -20,11 +20,33 @@ using std::strcpy;
 
 // Anzahl der Einträge, die zufällig Eingefügt/Gelöscht/Abgefragt werden sollen.
 #define RANDOM_TESTS 258000
+// Anteil der zufällig ausgeführten Aktionen.
 #define RANDOM_GET_PERCENT 45
 #define RANDOM_DEL_PERCENT 10
-#define RANDOM_INS_PERCENT 45	// wird nicht genutzt, ergibt sich eigentlich implizit
+#define RANDOM_INS_PERCENT 45	// wird nicht genutzt, ergibt sich implizit
+// Länge der zufällig erzeugten Einträge.
 #define RANDOM_MIN_STRING_LENGTH 5
 #define RANDOM_MAX_STRING_LENGTH 20
+
+// Statistik-Index:
+// Neue Einträge hinzufügen
+// Vorhandene Einträge ersetzen
+// Vorhandene Einträge lesen
+// Nicht vorhandene Einträge lesen
+// Vorhandene Einträge löschen
+// Nicht vorhandene Einträge löschen
+// Zufällige Aktionen auf (tendenziell) vorhandenen Einträgen ausführen
+// Zufällige Aktionen auf (tendenziell) nicht vorhandenen Einträgen ausführen
+#define STAT_INS_NEW 0
+#define STAT_INS_REPLACE 1
+#define STAT_GET_EXIST 2
+#define STAT_GET_NONEXIST 3
+#define STAT_GET_NONEXIST_EMPTY 8
+#define STAT_DEL_EXIST 4
+#define STAT_DEL_NONEXIST 5
+#define STAT_DEL_NONEXIST_EMPTY 9
+#define STAT_ACT_RANDOM_EXIST 6
+#define STAT_ACT_RANDOM 7
 
 // Inhalt von TAG_ACTION bestimmt weitere (erwartete) Handlung.
 #define TAG_EXIT		0

@@ -19,15 +19,7 @@ bool skipTests = false;
 HashMap* hashMap = new HashMap(hashMapSize);
 double startTime, endTime, totalTime;
 // Ergebnisse:
-// 0: Neue Einträge hinzufügen
-// 1: Vorhandene Einträge ersetzen
-// 2: Vorhandene Einträge lesen
-// 3: Nicht vorhandene Einträge lesen
-// 4: Vorhandene Einträge löschen
-// 5: Nicht vorhandene Einträge löschen
-// 6: Zufällige Aktionen auf (tendenziell) vorhandenen Einträgen ausführen
-// 7: Zufällige Aktionen auf (tendenziell) nicht vorhandenen Einträgen ausführen
-double testResults[8];
+double testResults[9];
 
 void PrintOnce(const char * text, ...) {
 	if (rank == 0) {
@@ -119,7 +111,7 @@ int main(int argc, char *argv[]) {
 	opterr = 0;
 
 	// Optionen Verarbeiten:
-	while ((opt = getopt(argc, argv, "vlrdsh:n:")) != -1) {
+	while ((opt = getopt(argc, argv, "vlrdsh:")) != -1) {
 		switch (opt) {
 		case 'v':
 			// verbose: Zeige Vorgänge an
@@ -153,12 +145,6 @@ int main(int argc, char *argv[]) {
 			// (h)ashMap size: Größe der HashMap (pro Prozess)
 			if (optarg) {
 				hashMapSize = atoi(optarg);
-			}
-			break;
-		case 'n':
-			// (n)umber of tests: Anzahl der durchzuführenden zufälligen Tests.
-			if (optarg) {
-				randomTests = atoi(optarg);
 			}
 			break;
 		case '?':
@@ -252,6 +238,33 @@ int main(int argc, char *argv[]) {
 		PrintOnce("Skipping tests.\n");
 		goto userInput;
 	}
+	// ============= Beginne Tests ================
+
+	// ============= Zufällige vorhandene Einträge löschen bei leerer HashMap ================
+	PrintOnce("Delete all existing entrys (%d actions).\n", processEntrys*numProcesses);
+	MeasurementStart();
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	for (int i = 0; i < processEntrys; i++) {
+		mpiHash->DeleteDistEntry(rank*processEntrys + i);
+	}
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	MeasurementEnd(STAT_DEL_NONEXIST_EMPTY);
+	PrintOnce("All existing entrys deleted in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
+	// ============= Zufällige vorhandene Einträge abfragen bei leerer HashMap ================
+	PrintOnce("Get random existing entrys (%d actions).\n", processEntrys*numProcesses);
+	MeasurementStart();
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	for (int i = 0; i < processEntrys; i++) {
+		id = RandBetween(0, (processEntrys*numProcesses) - 1);
+		mpiHash->GetDistEntry(id);
+	}
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	MeasurementEnd(STAT_GET_NONEXIST_EMPTY);
+	PrintOnce("Random existing entrys got in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	// ============= Gecachte Werte Einfügen ================
 	PrintOnce("Inserting cached data (%d actions).\n", processEntrys*numProcesses);
 	MeasurementStart();
@@ -263,7 +276,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(0);
+	MeasurementEnd(STAT_INS_NEW);
 	PrintOnce("Cached data inserted in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	MPI_Barrier(MPI_COMM_WORLD);
 	// ============= Gecachte Werte erneut Einfügen ================
@@ -277,7 +290,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(1);
+	MeasurementEnd(STAT_INS_REPLACE);
 	PrintOnce("Cached data rewritten in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	MPI_Barrier(MPI_COMM_WORLD);
 	// ============= Zufällige vorhandene Einträge abfragen ================
@@ -291,7 +304,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(2);
+	MeasurementEnd(STAT_GET_EXIST);
 	PrintOnce("Random existing entrys got in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	// ============= Zufällige nicht vorhandene Einträge abfragen ================
 	PrintOnce("Get random not existing entrys (%d actions).\n", processEntrys*numProcesses);
@@ -299,12 +312,12 @@ int main(int argc, char *argv[]) {
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	for (int i = 0; i < processEntrys; i++) {
-		id = RandBetween((processEntrys*numProcesses), (processEntrys*numProcesses)+numProcesses);
+		id = RandBetween((processEntrys*numProcesses), (processEntrys*numProcesses) + numProcesses);
 		mpiHash->GetDistEntry(id);
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(3);
+	MeasurementEnd(STAT_GET_NONEXIST);
 	PrintOnce("Random not existing entrys got in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	// ============= Zufällige vorhandene Einträge löschen ================
 	PrintOnce("Delete all existing entrys (%d actions).\n", processEntrys*numProcesses);
@@ -316,7 +329,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(4);
+	MeasurementEnd(STAT_DEL_EXIST);
 	PrintOnce("All existing entrys deleted in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	// ============= Zufällige nicht vorhandene Einträge löschen ================
 	PrintOnce("\"Delete\" not existing entrys (%d actions).\n", processEntrys*numProcesses);
@@ -328,41 +341,13 @@ int main(int argc, char *argv[]) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(5);
+	MeasurementEnd(STAT_DEL_NONEXIST);
 	PrintOnce("Not existing entrys \"deleted\" in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	// ============= Gecachte Werte für spätere Tests erneut einfügen ================
 	PrintOnce("Reinserting cached data...\n");
 	for (int i = 0; i < processEntrys; i++) {
 		mpiHash->InsertDistEntry(rank*processEntrys + i, inputData[i]);
 	}
-	// ============= Zufällige Aktionen auf gecachten Werte ausführen  ================
-	PrintOnce("Process random actions on inserted data (%d actions -- Insert: %d%%   Get: %d%%   Delete: %d%%).\n", randomTests, RANDOM_INS_PERCENT, RANDOM_GET_PERCENT, RANDOM_DEL_PERCENT);
-	MeasurementStart();
-	MPI_Barrier(MPI_COMM_WORLD);
-
-	for (int i = 0; i < (randomTests / numProcesses); i++) {
-		int action = RandBetween(1, 100);
-		id = RandBetween(0, (processEntrys*numProcesses) - 1);
-		if (action <= RANDOM_GET_PERCENT) {
-			// Frage zufälligen Eintrag ab.
-			//printf("Getting Entry %d for Process %d.\n", id, rank);
-			mpiHash->GetDistEntry(id);
-		} else if (action <= RANDOM_DEL_PERCENT + RANDOM_GET_PERCENT) {
-			// Lösche zufälligen Eintrag.
-			//printf("Deleting Entry %d for Process %d.\n", id, rank);
-			mpiHash->DeleteDistEntry(id);
-		} else {
-			// Füge zufälligen Eintrag ein.
-			value = RandString(RandBetween(RANDOM_MIN_STRING_LENGTH, RANDOM_MAX_STRING_LENGTH));
-			//printf("Inserting Entry %d,%s for Process %d.\n", id, value.c_str(), rank);
-			mpiHash->InsertDistEntry(id, value);
-		}
-	}
-
-	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(6);
-	PrintOnce("Random actions on inserted data processed in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
-	MPI_Barrier(MPI_COMM_WORLD);
 	// ============= Zufällige Einträge ================
 	PrintOnce("Process random data (%d actions -- Insert: %d%%   Get: %d%%   Delete: %d%%).\n", randomTests, RANDOM_INS_PERCENT, RANDOM_GET_PERCENT, RANDOM_DEL_PERCENT);
 	MeasurementStart();
@@ -388,28 +373,62 @@ int main(int argc, char *argv[]) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(7);
+	MeasurementEnd(STAT_ACT_RANDOM_EXIST);
 	PrintOnce("Random data processed in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	MPI_Barrier(MPI_COMM_WORLD);
+	// ============= Zufällige Aktionen auf gecachten Werte ausführen  ================
+	PrintOnce("Process random actions on inserted data (%d actions -- Insert: %d%%   Get: %d%%   Delete: %d%%).\n", randomTests, RANDOM_INS_PERCENT, RANDOM_GET_PERCENT, RANDOM_DEL_PERCENT);
+	MeasurementStart();
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	for (int i = 0; i < (randomTests / numProcesses); i++) {
+		int action = RandBetween(1, 100);
+		id = RandBetween(0, (processEntrys*numProcesses) - 1);
+		if (action <= RANDOM_GET_PERCENT) {
+			// Frage zufälligen Eintrag ab.
+			//printf("Getting Entry %d for Process %d.\n", id, rank);
+			mpiHash->GetDistEntry(id);
+		} else if (action <= RANDOM_DEL_PERCENT + RANDOM_GET_PERCENT) {
+			// Lösche zufälligen Eintrag.
+			//printf("Deleting Entry %d for Process %d.\n", id, rank);
+			mpiHash->DeleteDistEntry(id);
+		} else {
+			// Füge zufälligen Eintrag ein.
+			value = RandString(RandBetween(RANDOM_MIN_STRING_LENGTH, RANDOM_MAX_STRING_LENGTH));
+			//printf("Inserting Entry %d,%s for Process %d.\n", id, value.c_str(), rank);
+			mpiHash->InsertDistEntry(id, value);
+		}
+	}
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	MeasurementEnd(STAT_ACT_RANDOM);
+	PrintOnce("Random actions on inserted data processed in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	// ============= Tests fertig ================
 	PrintOnce(
 		"----------------------------------------\n"
-		"Insert new:                              %fs\n"
-		"Reinsert:                                %fs\n"
-		"Get existing:                            %fs\n"
-		"Get not existing:                        %fs\n"
-		"Delete existing:                         %fs\n"
-		"Delete not existing:                     %fs\n"
-		"Random actions on mostly existing:       %fs\n"
-		"Random actions on mostly not existing:   %fs\n"
+		"Insert new:                              %2.6fs\n"
+		"Reinsert:                                %2.6fs\n"
+		"Get existing:                            %2.6fs\n"
+		"Get not existing:                        %2.6fs\n"
+		"Get not existing (empty HashMap):        %2.6fs\n"
+		"Delete existing:                         %2.6fs\n"
+		"Delete not existing:                     %2.6fs\n"
+		"Delete not existing (empty HashMap):     %2.6fs\n"
+		"Random actions on mostly existing:       %2.6fs\n"
+		"Random actions on mostly not existing:   %2.6fs\n"
 		"----------------------------------------\n",
-		testResults[0],
-		testResults[1],
-		testResults[2],
-		testResults[3],
-		testResults[4],
-		testResults[5],
-		testResults[6],
-		testResults[7]
+		testResults[STAT_INS_NEW],
+		testResults[STAT_INS_REPLACE],
+		testResults[STAT_GET_EXIST],
+		testResults[STAT_GET_NONEXIST],
+		testResults[STAT_GET_NONEXIST_EMPTY],
+		testResults[STAT_DEL_EXIST],
+		testResults[STAT_DEL_NONEXIST],
+		testResults[STAT_DEL_NONEXIST_EMPTY],
+		testResults[STAT_ACT_RANDOM_EXIST],
+		testResults[STAT_ACT_RANDOM]
 	);
 	// ================================================================
 	//                      Benutzereingabe
