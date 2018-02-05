@@ -13,7 +13,7 @@ MPIHash::~MPIHash() {
 }
 
 int MPIHash::GetDistHashLocation(int key) {
-	if (mode < 2) {
+	if (mode < MODE_DISTRIBUTED) {
 		// REMOTE
 		return 1;
 	} else {
@@ -44,7 +44,7 @@ void MPIHash::InsertDistEntry(int key, string value) {
 	int valueSize;
 	char* valueArray;
 	int action = ACTION_INS;
-	if (mode == 2 || (mode == 1 && rank == 0)) {
+	if (mode == MODE_DISTRIBUTED || (mode == MODE_REMOTE && rank == 0)) {
 		// DISTRIBUTED / REMOTE 0
 		destination = GetDistHashLocation(key);
 		// Action senden.
@@ -62,7 +62,7 @@ void MPIHash::InsertDistEntry(int key, string value) {
 		MPI_Ssend(&valueSize, 1, MPI_INT, destination, TAG_VALUE_SIZE, thread_comm);
 		// Sende Value.
 		MPI_Ssend(valueArray, valueSize, MPI_CHAR, destination, TAG_VALUE, thread_comm);
-	} else if (mode == 0) {
+	} else if (mode == MODE_LOCAL) {
 		// LOCAL
 		this->InsertEntry(key, value);
 		PrintColored("Inserted entry (%d, %s).\n", key, value.c_str());
@@ -76,7 +76,7 @@ string MPIHash::GetDistEntry(int key) {
 	int valueSize;
 	char* valueArray;
 	int action = ACTION_GET;
-	if (mode == 2 || (mode == 1 && rank == 0)) {
+	if (mode == MODE_DISTRIBUTED || (mode == MODE_REMOTE && rank == 0)) {
 		// DISTRIBUTED / REMOTE 0
 		destination = GetDistHashLocation(key);
 		// Action senden.
@@ -97,7 +97,7 @@ string MPIHash::GetDistEntry(int key) {
 			// Value als String speichern.
 			value = valueArray;
 		}
-	} else if (mode == 0) {
+	} else if (mode == MODE_LOCAL) {
 		// LOCAL
 		value = this->GetEntry(key);
 		PrintColored("Got entry (%d, %s).\n", key, value.c_str());
@@ -111,7 +111,7 @@ bool MPIHash::DeleteDistEntry(int key) {
 	int destination;
 	int feedback;
 	int action = ACTION_DEL;
-	if (mode == 2 || (mode == 1 && rank == 0)) {
+	if (mode == MODE_DISTRIBUTED || (mode == MODE_REMOTE && rank == 0)) {
 		// DISTRIBUTED / REMOTE 0
 		destination = GetDistHashLocation(key);
 		// Action senden.
@@ -123,7 +123,7 @@ bool MPIHash::DeleteDistEntry(int key) {
 		MPI_Recv(&feedback, 1, MPI_INT, destination, TAG_FEEDBACK, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		if (feedback == 1)
 			deleted = true;
-	} else if (mode == 0) {
+	} else if (mode == MODE_LOCAL) {
 		// LOCAL
 		deleted = this->DeleteEntry(key);
 		if (deleted)

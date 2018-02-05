@@ -1,6 +1,7 @@
 #include "HashMap.h"
 
 extern int numProcesses;
+extern int mode;
 
 /// <summary>
 /// Initialisiert die HashMap: Ein Tabelle von LinkedHashEntrys der entsprechenden Größe wird angelegt und vorerst mit NULL gefüllt.
@@ -33,7 +34,10 @@ HashMap::~HashMap() {
 
 
 int HashMap::GetHashKey(int key) {
-	return (key / numProcesses) % tableSize;
+	if (mode == MODE_DISTRIBUTED)
+		return (key / numProcesses) % tableSize;
+	else
+		return key % tableSize;
 }
 
 /// <summary>

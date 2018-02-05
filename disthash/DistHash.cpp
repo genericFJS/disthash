@@ -14,7 +14,7 @@ int randomTests = RANDOM_TESTS;
 
 bool verbose = false;
 // 0: local HashMap, 1: remote HashMap, 2: distributed HashMap 
-int mode = 2;
+int mode = MODE_DISTRIBUTED;
 bool skipTests = false;
 HashMap* hashMap = new HashMap(hashMapSize);
 double startTime, endTime, totalTime;
@@ -82,9 +82,11 @@ std::string RandString(size_t length) {
 int ExitApp() {
 	// Warte, bis alle Prozesse bereit zum Beenden sind.
 	MPI_Barrier(MPI_COMM_WORLD);
-	// Beim beenden, Thread auch beenden.
-	KillThread();
-	usleep(1000);
+	// Threads Beenden-Signal schicken.
+	MPI_Ssend(MPI_BOTTOM, 0, MPI_INT, rank, TAG_EXIT, thread_comm);
+	// Warten, bis alle Prozesse ihre Threads beendet haben.
+	pthread_join(thread, NULL);
+	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Finalize();
 	PrintOnce("==================================\nThank you for using DistHash by FJS.\n");
 	return 0;
@@ -119,7 +121,7 @@ int main(int argc, char *argv[]) {
 			break;
 		case 'l':
 			// (l)ocal mode: HashMap wird lokal erstellt und verwaltet.
-			mode = 0;
+			mode = MODE_LOCAL;
 			if (numProcesses > 1) {
 				PrintOnce("LOCAL tests require n=1 process (has %d).\n", numProcesses);
 				return ExitApp();
@@ -127,7 +129,7 @@ int main(int argc, char *argv[]) {
 			break;
 		case 'r':
 			// (r)emote mode: HashMap wird von entferntem Prozess 1 verwaltet, Prozess 0 macht nur Anfragen. 
-			mode = 1;
+			mode = MODE_REMOTE;
 			if (numProcesses > 2) {
 				PrintOnce("REMOTE tests require n=2 processes (has %d).\n", numProcesses);
 				return ExitApp();
@@ -135,7 +137,7 @@ int main(int argc, char *argv[]) {
 			break;
 		case 'd':
 			// (d)istributed mode: HashMap wird von allen Prozessen verwaltet, jeder Prozess kann Anfragen ausführen.
-			mode = 2;
+			mode = MODE_DISTRIBUTED;
 			break;
 		case 's':
 			// (s)kip tests: Tests werden nicht ausgeführt.
@@ -153,15 +155,16 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	// Gebe Informationen zu den festgelegten Einstellungen.
 	string modeString = "";
 	switch (mode) {
-	case 0:
+	case MODE_LOCAL:
 		modeString = "LOCAL";
 		break;
-	case 1:
+	case MODE_REMOTE:
 		modeString = "REMOTE";
 		break;
-	case 2:
+	case MODE_DISTRIBUTED:
 		modeString = "DISTRIBUTED (default)";
 		break;
 	}
@@ -240,8 +243,8 @@ int main(int argc, char *argv[]) {
 	}
 	// ============= Beginne Tests ================
 
-	// ============= Zufällige vorhandene Einträge löschen bei leerer HashMap ================
-	PrintOnce("Delete all existing entrys (%d actions).\n", processEntrys*numProcesses);
+	// ============= Zufällige nicht vorhandene Einträge löschen bei leerer HashMap ================
+	PrintOnce("Delete not existing entrys in empty HashMap (%d actions).\n", processEntrys*numProcesses);
 	MeasurementStart();
 	MPI_Barrier(MPI_COMM_WORLD);
 
@@ -251,9 +254,9 @@ int main(int argc, char *argv[]) {
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	MeasurementEnd(STAT_DEL_NONEXIST_EMPTY);
-	PrintOnce("All existing entrys deleted in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
+	PrintOnce("Not existing entrys deleted in empty HashMap in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	// ============= Zufällige vorhandene Einträge abfragen bei leerer HashMap ================
-	PrintOnce("Get random existing entrys (%d actions).\n", processEntrys*numProcesses);
+	PrintOnce("Get random not existing entrys in empty HashMap (%d actions).\n", processEntrys*numProcesses);
 	MeasurementStart();
 	MPI_Barrier(MPI_COMM_WORLD);
 
@@ -264,7 +267,7 @@ int main(int argc, char *argv[]) {
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	MeasurementEnd(STAT_GET_NONEXIST_EMPTY);
-	PrintOnce("Random existing entrys got in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
+	PrintOnce("Random not existing entrys got in empty HashMap in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	// ============= Gecachte Werte Einfügen ================
 	PrintOnce("Inserting cached data (%d actions).\n", processEntrys*numProcesses);
 	MeasurementStart();

@@ -117,12 +117,3 @@ void* MPIHashThread(void* ptr) {
 	// PrintColored("\tBye from thread %d.\n", rank);
 	pthread_exit((void *)NULL);
 }
-
-/// <summary>
-/// Sendet MPI-Nachricht, um eigenen Thread zu stoppen.
-/// </summary>
-bool KillThread() {
-	extern MPI_Comm thread_comm;
-	MPI_Ssend(MPI_BOTTOM, 0, MPI_INT, rank, TAG_EXIT, thread_comm);
-	return true;
-}

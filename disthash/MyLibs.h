@@ -28,6 +28,11 @@ using std::strcpy;
 #define RANDOM_MIN_STRING_LENGTH 5
 #define RANDOM_MAX_STRING_LENGTH 20
 
+// Modi
+#define MODE_LOCAL 0
+#define MODE_REMOTE 1
+#define MODE_DISTRIBUTED 2
+
 // Statistik-Index:
 // Neue Einträge hinzufügen
 // Vorhandene Einträge ersetzen
