@@ -42,6 +42,8 @@ using std::strcpy;
 // Nicht vorhandene Einträge löschen
 // Zufällige Aktionen auf (tendenziell) vorhandenen Einträgen ausführen
 // Zufällige Aktionen auf (tendenziell) nicht vorhandenen Einträgen ausführen
+// Vorhandene Einträge zufällig ersetzen
+// (Tendenziell) Nicht vorhandene Einträge zufällig einfügen
 #define STAT_INS_NEW 0
 #define STAT_INS_REPLACE 1
 #define STAT_GET_EXIST 2
@@ -52,6 +54,8 @@ using std::strcpy;
 #define STAT_DEL_NONEXIST_EMPTY 9
 #define STAT_ACT_RANDOM_EXIST 6
 #define STAT_ACT_RANDOM 7
+#define STAT_INS_RANDOM 8
+#define STAT_INS_RANDOM_EXIST 9
 
 // Inhalt von TAG_ACTION bestimmt weitere (erwartete) Handlung.
 #define TAG_EXIT		0

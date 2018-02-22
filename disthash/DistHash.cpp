@@ -255,7 +255,7 @@ int main(int argc, char *argv[]) {
 	MPI_Barrier(MPI_COMM_WORLD);
 	MeasurementEnd(STAT_DEL_NONEXIST_EMPTY);
 	PrintOnce("Not existing entrys deleted in empty HashMap in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
-	// ============= Zufällige vorhandene Einträge abfragen bei leerer HashMap ================
+	// ============= Zufällige nicht vorhandene Einträge abfragen bei leerer HashMap ================
 	PrintOnce("Get random not existing entrys in empty HashMap (%d actions).\n", processEntrys*numProcesses);
 	MeasurementStart();
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -268,7 +268,7 @@ int main(int argc, char *argv[]) {
 	MPI_Barrier(MPI_COMM_WORLD);
 	MeasurementEnd(STAT_GET_NONEXIST_EMPTY);
 	PrintOnce("Random not existing entrys got in empty HashMap in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
-	// ============= Gecachte Werte Einfügen ================
+	// ============= Gecachte Werte einfügen ================
 	PrintOnce("Inserting cached data (%d actions).\n", processEntrys*numProcesses);
 	MeasurementStart();
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -282,7 +282,7 @@ int main(int argc, char *argv[]) {
 	MeasurementEnd(STAT_INS_NEW);
 	PrintOnce("Cached data inserted in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	MPI_Barrier(MPI_COMM_WORLD);
-	// ============= Gecachte Werte erneut Einfügen ================
+	// ============= Gecachte Werte erneut einfügen (ersetzen) ================
 	PrintOnce("Rewriting cached data (%d actions).\n", processEntrys*numProcesses);
 	MeasurementStart();
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -322,7 +322,22 @@ int main(int argc, char *argv[]) {
 	MPI_Barrier(MPI_COMM_WORLD);
 	MeasurementEnd(STAT_GET_NONEXIST);
 	PrintOnce("Random not existing entrys got in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
-	// ============= Zufällige vorhandene Einträge löschen ================
+	// ============= Zufälliges Ersetzen ================
+	PrintOnce("Rewrite random data in cached data (%d actions).\n", randomTests);
+	MeasurementStart();
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	for (int i = 0; i < (randomTests / numProcesses); i++) {
+		id = RandBetween(0, (processEntrys*numProcesses) - 1);
+		value = RandString(RandBetween(RANDOM_MIN_STRING_LENGTH, RANDOM_MAX_STRING_LENGTH));
+		mpiHash->InsertDistEntry(id, value);
+	}
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	MeasurementEnd(STAT_INS_RANDOM);
+	PrintOnce("Random data rewritten in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
+	MPI_Barrier(MPI_COMM_WORLD);
+	// ============= Vorhandene Einträge löschen ================
 	PrintOnce("Delete all existing entrys (%d actions).\n", processEntrys*numProcesses);
 	MeasurementStart();
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -334,7 +349,7 @@ int main(int argc, char *argv[]) {
 	MPI_Barrier(MPI_COMM_WORLD);
 	MeasurementEnd(STAT_DEL_EXIST);
 	PrintOnce("All existing entrys deleted in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
-	// ============= Zufällige nicht vorhandene Einträge löschen ================
+	// ============= Nicht vorhandene Einträge löschen ================
 	PrintOnce("\"Delete\" not existing entrys (%d actions).\n", processEntrys*numProcesses);
 	MeasurementStart();
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -402,17 +417,29 @@ int main(int argc, char *argv[]) {
 			mpiHash->InsertDistEntry(id, value);
 		}
 	}
+	// ============= Zufälliges Einfügen ================
+	PrintOnce("Insert random data  (%d actions).\n", randomTests);
+	MeasurementStart();
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	for (int i = 0; i < (randomTests / numProcesses); i++) {
+		id = RandBetween(0, RAND_MAX / 2);
+		value = RandString(RandBetween(RANDOM_MIN_STRING_LENGTH, RANDOM_MAX_STRING_LENGTH));
+		mpiHash->InsertDistEntry(id, value);
+	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(STAT_ACT_RANDOM);
-	PrintOnce("Random actions on inserted data processed in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
+	MeasurementEnd(STAT_INS_RANDOM_EXIST);
+	PrintOnce("Random data inserted in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	// ============= Tests fertig ================
 	PrintOnce(
 		"----------------------------------------\n"
 		"Insert new:                              %2.6fs\n"
+		"Insert random:                           %2.6fs\n"
 		"Reinsert:                                %2.6fs\n"
+		"Reinsert random:                         %2.6fs\n"
 		"Get existing:                            %2.6fs\n"
 		"Get not existing:                        %2.6fs\n"
 		"Get not existing (empty HashMap):        %2.6fs\n"
@@ -423,7 +450,9 @@ int main(int argc, char *argv[]) {
 		"Random actions on mostly not existing:   %2.6fs\n"
 		"----------------------------------------\n",
 		testResults[STAT_INS_NEW],
+		testResults[STAT_INS_RANDOM],
 		testResults[STAT_INS_REPLACE],
+		testResults[STAT_INS_RANDOM_EXIST],
 		testResults[STAT_GET_EXIST],
 		testResults[STAT_GET_NONEXIST],
 		testResults[STAT_GET_NONEXIST_EMPTY],
