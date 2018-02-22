@@ -4,8 +4,11 @@ import os
 import sys
 import socket
 
+machines_online = 0
+
 
 def ssh_check(host, user, password, timeout=30):
+    global machines_online
     host_out = host.replace('\r', '').replace('\n', '')
     # cmd = "hostname"
     options = ('-q -oStrictHostKeyChecking=no '
@@ -36,6 +39,7 @@ def ssh_check(host, user, password, timeout=30):
 
         child.sendline(password)
         print('{:10s} online (password entered)'.format(host_out))
+        machines_online += 1
         child.close()
     except pexpect.exceptions.TIMEOUT:
         # print(child.before.decode("utf-8"))
@@ -44,6 +48,7 @@ def ssh_check(host, user, password, timeout=30):
             return 1
         else:
             print('{:10s} online (key accepted)'.format(host_out))
+            machines_online += 1
     child.close()
     return 0
 
@@ -58,10 +63,13 @@ if __name__ == "__main__":
     with open("../machines/machinefileAll") as f:
         try:
             for machine in f:
-                if ssh_check(machine, user_inp, pw_inp, 1) == 0:
+                if ssh_check(machine, user_inp, pw_inp, 0.5) == 0:
                     machine_ip = socket.gethostbyname(machine.strip())
                     # print('\tAdding ' + format(machine_ip) + ' as machine.')
                     working_machines.write(machine_ip + "\n")
+            print('Number of machines online:', machines_online)
+            with open("../machines/machineCount", 'w') as f:
+                f.write(str(machines_online))
         except (KeyboardInterrupt, SystemExit):
             print("Exiting...")
 
