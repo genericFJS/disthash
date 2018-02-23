@@ -334,7 +334,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(STAT_INS_RANDOM);
+	MeasurementEnd(STAT_INS_RANDOM_EXIST);
 	PrintOnce("Random data rewritten in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	MPI_Barrier(MPI_COMM_WORLD);
 	// ============= Vorhandene Einträge löschen ================
@@ -391,7 +391,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(STAT_ACT_RANDOM_EXIST);
+	MeasurementEnd(STAT_ACT_RANDOM);
 	PrintOnce("Random data processed in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	MPI_Barrier(MPI_COMM_WORLD);
 	// ============= Zufällige Aktionen auf gecachten Werte ausführen  ================
@@ -417,6 +417,11 @@ int main(int argc, char *argv[]) {
 			mpiHash->InsertDistEntry(id, value);
 		}
 	}
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	MeasurementEnd(STAT_ACT_RANDOM_EXIST);
+	PrintOnce("Random data processed in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
+	MPI_Barrier(MPI_COMM_WORLD);
 	// ============= Zufälliges Einfügen ================
 	PrintOnce("Insert random data  (%d actions).\n", randomTests);
 	MeasurementStart();
@@ -429,7 +434,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MeasurementEnd(STAT_INS_RANDOM_EXIST);
+	MeasurementEnd(STAT_INS_RANDOM);
 	PrintOnce("Random data inserted in   \x1b[97m%f\x1b[0m   seconds.\n", totalTime);
 	MPI_Barrier(MPI_COMM_WORLD);
 
