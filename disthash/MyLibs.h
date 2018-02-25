@@ -12,6 +12,10 @@
 #include <fstream>		// Datei lesen
 #include <iterator>		// Zeilen zählen
 #include <algorithm>	// Zeilen zählen (count)
+#include <numeric>		// Zufällige Reihenfolge
+#include <vector>		
+#include <random>		// Zufall
+#include <limits>		// Grenze von Zahlen (für Bereichsgrenzen)
 using std::string;
 using std::strcpy;
 
@@ -44,18 +48,18 @@ using std::strcpy;
 // Zufällige Aktionen auf (tendenziell) nicht vorhandenen Einträgen ausführen
 // Vorhandene Einträge zufällig ersetzen
 // (Tendenziell) Nicht vorhandene Einträge zufällig einfügen
-#define STAT_INS_NEW 0
-#define STAT_INS_REPLACE 1
-#define STAT_GET_EXIST 2
-#define STAT_GET_NONEXIST 3
-#define STAT_GET_NONEXIST_EMPTY 8
-#define STAT_DEL_EXIST 4
-#define STAT_DEL_NONEXIST 5
-#define STAT_DEL_NONEXIST_EMPTY 9
-#define STAT_ACT_RANDOM_EXIST 6
-#define STAT_ACT_RANDOM 7
-#define STAT_INS_RANDOM 8
-#define STAT_INS_RANDOM_EXIST 9
+#define STAT_INS_EMPTY 0
+#define STAT_INS_MOSTLYNONEXIST_RANDOM 1
+#define STAT_INS_EXIST 2
+#define STAT_INS_EXIST_RANDOM 3
+#define STAT_GET_EXIST_RANDOM 4
+#define STAT_GET_NONEXIST_RANDOM 5
+#define STAT_GET_EMPTY_NONEXIST 6
+#define STAT_DEL_EXIST 7
+#define STAT_DEL_NONEXIST 8
+#define STAT_DEL_EMPTY_NONEXIST 9
+#define STAT_ACT_MOSTLYEXIST_RANDOM 10
+#define STAT_ACT_MOSTLYNONEXIST_RANDOM 11
 
 // Inhalt von TAG_ACTION bestimmt weitere (erwartete) Handlung.
 #define TAG_EXIT		0
