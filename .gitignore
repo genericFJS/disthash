@@ -450,3 +450,4 @@ compatibility/
 *.mjpeg
 *.exe.config
 *.jpeg
+*.csv
