@@ -3,6 +3,10 @@
 cd "$(dirname "$0")"
 cd "../disthash"
 # Tests mit entsprechenden Einstellungen ausführen: Modus und HashMap-Größe.
+#    129/42=3
+mpiexec -f ~/projektseminar/machines/machinefile -n 42 ./disthash -d -t -h 3
+mpiexec -f ~/projektseminar/machines/machinefile -n 42 ./disthash -d -t -h 3
+mpiexec -f ~/projektseminar/machines/machinefile -n 42 ./disthash -d -t -h 3
 #    129
 mpiexec -f ~/projektseminar/machines/machinefile -n 42 ./disthash -d -t -h 129
 mpiexec -f ~/projektseminar/machines/machinefile -n 42 ./disthash -d -t -h 129
