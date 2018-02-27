@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 	while ((opt = getopt(argc, argv, "vlrdth:")) != -1) {
 		switch (opt) {
 		case 'v':
-			// verbose: Zeige Vorgänge an
+			// (v)erbose: Zeige Vorgänge an
 			verbose = true;
 			break;
 		case 'l':
@@ -466,7 +466,7 @@ int main(int argc, char *argv[]) {
 		testResults[STAT_ACT_MOSTLYNONEXIST_RANDOM]
 	);
 	// ============= Testdaten in Datei schreiben ================
-	{
+	if (rank == 0) {
 		std::string statFilename = "../tests/" + modeString + "-" + std::to_string(numProcesses) + "_" + std::to_string(hashMapSize) + ".csv";
 		std::fstream statFile(statFilename, std::fstream::app);
 		int statFileSize = statFile.tellg();
