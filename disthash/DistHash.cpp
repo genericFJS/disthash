@@ -1,3 +1,6 @@
+/// <summary>
+/// DistHash ist die Hauptanwendung. Hier werden die MPI-Verbindungen, die Threads und die MPI-HashMap initialisiert.
+/// </summary>
 #include "LinkedHashEntry.h"
 #include "HashMap.h"
 #include "MPIHash.h"
@@ -21,6 +24,15 @@ double startTime, endTime, totalTime;
 // Ergebnisse:
 double testResults[12];
 
+// Vorbereitung vom Zufall
+std::random_device seeder;
+std::mt19937 engine(seeder());
+
+/// <summary>
+/// Gibt einen Text nur einmalig (im Prozess 0) aus.
+/// </summary>
+/// <param name="text">Auszugebender Text</param>
+/// <param name="">Parameter der printf-Funktion</param>
 void PrintOnce(const char * text, ...) {
 	if (rank == 0) {
 		va_list args;
@@ -30,23 +42,29 @@ void PrintOnce(const char * text, ...) {
 	}
 }
 
+/// <summary>
+/// Beginnt einen Messvorgang.
+/// </summary>
 void MeasurementStart() {
 	startTime = MPI_Wtime();
 }
 
+/// <summary>
+/// Beendet einen Messvorgang und speichert die Zeit zwischen.
+/// </summary>
 void MeasurementEnd() {
 	endTime = MPI_Wtime();
 	totalTime = endTime - startTime;
 }
 
+/// <summary>
+/// Beendet einen Messvorgang und speichert die Zeit in dem Array der Messergebnisse.
+/// </summary>
+/// <param name="i">Position im Array der Messergebnisse</param>
 void MeasurementEnd(int i) {
 	MeasurementEnd();
 	testResults[i] = totalTime;
 }
-
-
-std::random_device seeder;
-std::mt19937 engine(seeder());
 
 /// <summary>
 /// Erzeugt eine zufällige Zahl zwischen zwei Werten. Quelle: https://stackoverflow.com/a/11766794/8805428
@@ -80,6 +98,10 @@ std::string RandString(size_t length) {
 	return str;
 }
 
+/// <summary>
+/// Beendet das Programm, indem alle Threads beendet werden.
+/// </summary>
+/// <returns>Status beim Beenden</returns>
 int ExitApp() {
 	// Warte, bis alle Prozesse bereit zum Beenden sind.
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -246,11 +268,11 @@ int main(int argc, char *argv[]) {
 
 	// Tests ggf. überspringen.
 	if (!executeTests) {
+		PrintOnce("Inserting test data set. Please wait.\n");
 		// Trage alle Einträge aus Zwischenspeicher ein:
 		for (int i = 0; i < processEntrys; i++) {
 			mpiHash->InsertDistEntry(rank*processEntrys + i, inputData[i]);
 		}
-		PrintOnce("Inserting test data set.\n");
 		goto userInput;
 	}
 	// ============= Beginne Tests ================
@@ -505,6 +527,7 @@ int main(int argc, char *argv[]) {
 	//                      Benutzereingabe
 	// ================================================================
 userInput:
+	MPI_Barrier(MPI_COMM_WORLD);
 	// Ab jetzt (auf jeden Fall) detaillierte Rückmeldung.
 	verbose = true;
 	// Nur Prozess 0 hat Nutzereingabe für weiter Bedienung.

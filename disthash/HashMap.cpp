@@ -1,3 +1,6 @@
+/// <summary>
+/// HashMap realisiert die Hashtabelle. Bis auf die Berechnung des Schlüssels ist sie unabhängig von der Anwendung, von der sie benötigt wird.
+/// </summary>
 #include "HashMap.h"
 
 extern int numProcesses;
@@ -32,7 +35,11 @@ HashMap::~HashMap() {
 	delete[] table;
 }
 
-
+/// <summary>
+/// Berechnet den Key abhängig vom Modus, der Tabellengröße und gegebenenfalls von der Anzahl der Prozessen.
+/// </summary>
+/// <param name="key">Key des Eintrags</param>
+/// <returns>Key des Eintrags in der HashMap</returns>
 int HashMap::GetHashKey(int key) {
 	if (mode == MODE_DISTRIBUTED)
 		return (key / numProcesses) % tableSize;

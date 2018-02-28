@@ -3,6 +3,11 @@
 extern int rank;
 extern MPIHash* mpiHash;
 
+/// <summary>
+/// Threadfunktion, die auf Nachrichten der Hauptprozesse horcht: Delete, Insert, Get oder den Befehl, um den Thread zu beenden.
+/// </summary>
+/// <param name="ptr">Pointer auf den Kommunikator</param>
+/// <returns>NULL</returns>
 void* MPIHashThread(void* ptr) {
 	int actionCode;
 	MPI_Comm thread_comm = *(MPI_Comm*)ptr;
@@ -14,12 +19,10 @@ void* MPIHashThread(void* ptr) {
 
 	// Schleife zum Abarbeiten von HashMap-Aktivtäten
 	while (true) {
-		// PrintColored("\tWaiting for something to happen in Process %d.\n", rank);
 		// Warte, bis eine Aktion gesendet wird.
 		MPI_Recv(&actionCode, 500, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, thread_comm, &status);
 		int action = status.MPI_TAG;
 		int source = status.MPI_SOURCE;
-		// PrintColored("\tGot action in Process %d by %d.\n", rank, source);
 		// Action-Tag gibt an, was geschehen soll.
 		//========================================
 		if (action == TAG_ACTION) {
@@ -49,23 +52,17 @@ void* MPIHashThread(void* ptr) {
 				int valueSize;
 				char* valueArray;
 				string value;
-				//printf("Checking key for Process %d.\n", source);
 				// Key herausfinden.
 				MPI_Recv(&key, 1, MPI_INT, source, TAG_KEY, thread_comm, MPI_STATUS_IGNORE);
-				//printf("Received key %d from Process %d.\n", key, source);
 				// Länge des Values herausfinden.
 				MPI_Recv(&valueSize, 1, MPI_INT, source, TAG_VALUE_SIZE, thread_comm, MPI_STATUS_IGNORE);
-				//printf("Received length %d.\n", valueSize);
 				// Puffer bereitstellen.
 				valueArray = new char[valueSize];
 				// Value empfangen.
-				//printf("Created Buffer. Getting Value.\n");
 				MPI_Recv(valueArray, valueSize, MPI_CHAR, source, TAG_VALUE, thread_comm, MPI_STATUS_IGNORE);
-				//printf("Got Value.\n");
 				// Value als String speichern.
 				value = valueArray;
 				// Eintrag einfügen.
-				//printf("Trying to insert.\n");
 				mpiHash->InsertEntry(key, value);
 				PrintColored("\tInserted (%d, %s) from Process %d into HashMap by Process %d.\n", key, valueArray, source, rank);
 				break;
@@ -107,13 +104,11 @@ void* MPIHashThread(void* ptr) {
 
 		} else if (action == TAG_EXIT) {
 			// Aus Loop ausbrechen und Thread beenden (sollte nur zum Beenden ausgeführt werden).
-			//PrintColored("\tBye from Process %d.\n", rank);
 			break;
 		} else {
 		WrongTag:
 			PrintColored("\tWarning: Tag %d from Process %d not applicable in this context.\n", action, source);
 		}
 	}
-	// PrintColored("\tBye from thread %d.\n", rank);
 	pthread_exit((void *)NULL);
 }

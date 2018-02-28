@@ -1,3 +1,6 @@
+/// <summary>
+/// MPIHash stellt die Schnittstelle zur eigentlichen HashMap dar. Durch sie werden Anfragen an die Threads gestellt und durch die Threads verarbeitet.
+/// </summary>
 #include "MPIHash.h"
 
 extern int rank;
@@ -5,13 +8,26 @@ extern int numProcesses;
 extern MPI_Comm thread_comm;
 extern int mode;
 
+/// <summary>
+/// Erstellt neue HashMap mit der übergebenen Größe.
+/// </summary>
+/// <param name="hashmapSize">Gewünschte Größe der HashMap</param>
 MPIHash::MPIHash(int hashmapSize) {
 	hashMap = new HashMap(hashmapSize);
 }
 
+/// <summary>
+/// Löscht HashMap.
+/// </summary>
 MPIHash::~MPIHash() {
+	delete hashMap;
 }
 
+/// <summary>
+/// Berechnet die Nummer des Prozesses, der für diesen Eintrag/Schlüssel verantwortlich ist.
+/// </summary>
+/// <param name="key">Schlüssel des Eintrags</param>
+/// <returns>Prozessnummer, von dem Schlüssel verarbeitet wird</returns>
 int MPIHash::GetDistHashLocation(int key) {
 	if (mode < MODE_DISTRIBUTED) {
 		// REMOTE
@@ -31,14 +47,29 @@ void MPIHash::InsertEntry(int key, string value) {
 	hashMap->Insert(key, value);
 }
 
+/// <summary>
+/// Holt den Eintrag aus der HashMap. Nur vom zuständigen Thread auszuführen!
+/// </summary>
+/// <param name="key">Schlüssel des Eintrags</param>
+/// <returns>Eintrag</returns>
 string MPIHash::GetEntry(int key) {
 	return hashMap->Get(key);
 }
 
+/// <summary>
+/// Löscht den Eintrag aus der HashMap. Nur vom zuständigen Thread auszuführen!
+/// </summary>
+/// <param name="key">Schlüssel des Eintrags</param>
+/// <returns>Erfolg des Löschvorgangs</returns>
 bool MPIHash::DeleteEntry(int key) {
 	return hashMap->Delete(key);
 }
 
+/// <summary>
+/// Fügt Eintrag in die HashMap des zuständigen Prozesses ein.
+/// </summary>
+/// <param name="key">Schlüssel des Eintrags</param>
+/// <param name="value">Wert des Eintrags</param>
 void MPIHash::InsertDistEntry(int key, string value) {
 	int destination;
 	int valueSize;
@@ -69,7 +100,11 @@ void MPIHash::InsertDistEntry(int key, string value) {
 	}
 }
 
-
+/// <summary>
+/// Holt den Eintrag aus der HashMap des zuständigen Prozesses.
+/// </summary>
+/// <param name="key">Schlüssel des Eintrags</param>
+/// <returns>Wert des Eintrags</returns>
 string MPIHash::GetDistEntry(int key) {
 	string value;
 	int destination;
@@ -105,7 +140,11 @@ string MPIHash::GetDistEntry(int key) {
 	return value;
 }
 
-
+/// <summary>
+/// Löscht den EIntrag aus der HashMap des zuständigen Prozesses.
+/// </summary>
+/// <param name="key">Schlüssel des Eintrags</param>
+/// <returns>Erfolg des Löschvorgangs</returns>
 bool MPIHash::DeleteDistEntry(int key) {
 	bool deleted = false;
 	int destination;
