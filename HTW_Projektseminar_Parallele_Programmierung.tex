@@ -73,7 +73,7 @@ Programmiersprachen: C, C++, MPI, MPI-Threads
 %https://de.wikipedia.org/wiki/Hashtabelle
 Bei der Arbeit mit Daten am Computer stellt sich die Frage, wie diese Daten am besten abzuspeichern sind. 
 
-Eine Hashtabelle (auch: HashMap) „generalisiert die einfache Idee eines normalen Arrays“\footcite{cormen2009introduction}. Wenn bei Datensätzen (bestehend aus einem Schlüssel und dem dazugehörigen Wert) die mögliche Anzahl der Schlüssel im Verhältnis zu den Schlüsseln, die tatsächlich gespeichert werden relativ groß ist, so kann es sinnvoll sein eine Hashtabelle zu implementieren. In dieser werden durch eine Funktion die Schlüssel, und damit die Position in der Tabelle, berechnet. Mit diesem berechneten Schlüssel ist im Optimalfall trotzdem noch ein Zugriff des Datensatzes in der Laufzeit $O(1)$ möglich.\footcite{cormen2009introduction}
+Eine Hashtabelle (auch: HashMap) „generalisiert die einfache Idee eines normalen Arrays“\footcite{cormen2009introduction}. Wenn bei Datensätzen (bestehend aus einem Schlüssel und dem dazugehörigen Wert) die mögliche Anzahl der Schlüssel im Verhältnis zu den Schlüsseln, die tatsächlich gespeichert werden relativ groß ist, so kann es sinnvoll sein eine Hashtabelle zu implementieren. In dieser werden durch eine Funktion die Schlüssel, und damit die Position in der Hashtabelle, berechnet. Mit diesem berechneten Schlüssel ist im Optimalfall trotzdem noch ein Zugriff des Datensatzes in der Laufzeit $O(1)$ möglich.\footcite{cormen2009introduction}
 
 Dadurch, dass diese Funktion eine potentiell unendlich große Menge von Schlüsseln einer begrenzten Menge von Hasheinträgen zuordnet, kann es zu doppelten Belegungen kommen. Diese doppelte Belegungen auf einen Hashschlüssel könne beispielsweise mit einer Überlaufliste abgefangen werden. Wird nun aber ein Schlüssel aus einem Hasheintrag mit einer Überlaufliste abgefragt, so passiert das im schlimmsten Fall in einer Laufzeit von $O(n)$.\footcite{cormen2009introduction}
 
@@ -106,8 +106,8 @@ Eine verteilte Hashtabelle (distributed hash table, DHT) funktioniert wie eine n
 
 In der \autoref{fig:disthashtab} ist dies Beispielhaft dargestellt. Dort werden die $12$ Schlüssel von $x=0$ bis $x=11$ $n=3$ Prozessen $p$ mit jeweils $m=2$ Hashtabelleneinträgen $t$ zugewiesen. Als Zuweisungsfunktionen gelten einfache Modulorechnungen:
 \begin{align*}
-t(x)=x\mod n\\
-t(x)=(x/n)\mod m
+p(x)&=x\mod n\\
+t(x)&=\lfloor x/n\rfloor\mod m
 \end{align*}
 \begin{figure}[!ht]
 \centering
@@ -119,10 +119,10 @@ t(x)=(x/n)\mod m
 \node (v2) at (-6,-3) {0~~3~~6~~9};
 \node (v3) at (0,-3) {1~~4~~7~~10};
 \node (v8) at (6,-3) {2~~5~~8~~11};
-\node (v4) at (-7,-6) {3~~9};
-\node (v5) at (-5,-6) {0~~6};
-\node (v6) at (-1,-6) {1~~7};
-\node (v7) at (1,-6) {4~~10};
+\node (v4) at (-7,-6) {0~~6};
+\node (v5) at (-5,-6) {3~~9};
+\node (v6) at (-1,-6) {4~~10};
+\node (v7) at (1,-6) {1~~7};
 \node (v9) at (5,-6) {2~~8};
 \node (v10) at (7,-6) {5~~11};
 \draw (v1) -- node[pos=.5, left=.2, htwgrey]{$p=0$} (v2);
@@ -141,7 +141,7 @@ t(x)=(x/n)\mod m
 
 \section{Message Passing Interface}
 %https://en.wikipedia.org/wiki/Message_Passing_Interface
-Die Umsetzung der verteilten Hashtabelle erfolgt über den \emph{Message Passing Interface} Standard. Dieser sorgt dafür, dass mehrere Prozesse miteinander kommunizieren können. Da er für parallele Berechnungen und weniger für das Verwalten einer datenbankähnlichen Struktur gedacht ist, bietet er wenig im Hinblick auf Ausfallsicherheit. Dafür ist mit ihm eine optimale Skalierbarkeit möglich.
+Die Umsetzung der verteilten Hashtabelle erfolgt über den \emph{Message Passing Interface} Standard. Dieser sorgt dafür, dass mehrere Prozesse miteinander kommunizieren können. Da er für parallele Berechnungen und weniger für das Verwalten einer datenbankähnlichen Struktur gedacht ist, bietet er im Hinblick auf Ausfallsicherheit wenig Möglichkeiten. Dafür ist er einfach zu verstehen und eine optimale Skalierbarkeit möglich.
 
 \chapter{Installation und Nutzung}
 
@@ -215,11 +215,18 @@ isys22
 \end{lstlisting}
 \end{multicols}
 
-Da im Rechnerlabor der HTW Dresden nicht immer alle Rechner angeschaltet sind, muss vor jeder Anwendung geprüft werden, welche davon online sind. Hierfür wurde ein Skript geschrieben, dass dieses prüft und sich gleichzeitig kurz in die jeweiligen Rechner mit einem Passwort einloggt. Damit wird sichergestellt, dass die Authentifizierung über einen SSH-Schlüssel\footcite{schlittermann.de2014} auch über externe Geräte funktioniert (beispielsweise mit dem eigenen Rechner über \lstinline`ilux150`). Das Skript \lstinline`acceptCert.sh` erstellt nach Eingabe des Passworts die Datei \lstinline`machinefile` im Ordner \lstinline`machines`, die alle Rechner auflistet, die online sind.
+Da im Rechnerlabor der HTW Dresden nicht immer alle Rechner angeschaltet sind, muss vor jeder Anwendung geprüft werden, welche davon online sind. Hierfür wurde ein Skript geschrieben, dass dieses prüft und sich gleichzeitig kurz in die jeweiligen Rechner mit einem Passwort einloggt. Damit wird sichergestellt, dass die Authentifizierung über einen SSH-Schlüssel\footcite{schlittermann.de2014} auch über externe Geräte funktioniert (beispielsweise mit dem eigenen Rechner über \lstinline`ilux150`)\footnote{Verbindet man sich mit einem eigenen Rechner über SSH mit \lstinline`ilux150`, so muss trotz gültigen SSH-Schlüssel in regelmäßigen Abständen das Passwort eingegeben werden. Gleiches gilt, wenn von dort aus eine SSH Verbindung mit den \lstinline`isys`-Rechnern aufgestellt werden soll: Zu Beginn muss immer erst ein Passwort eingegeben werden. Ist das eingegeben, kann (für ca. 24 Stunden) der SSH-Schlüssel ohne Passwort genutzt werden. Dies hängt wahrscheinlich mit der Kerberos-Identität zusammen, die über die SSH-Verbindung vom eigenen Rechner „mitgebracht“ wird und nicht mit der der HTW überein stimmt. Der Zuständige des Laborbereichs konnte ebenfalls keinen bequemeren Lösungsweg finden.}. Das Skript \lstinline`acceptCert.sh`\footnote{Zu finden im Ordner \lstinline|scripts|. Im Folgenden wird immer angenommen, dass der Ordner \lstinline`projektseminar` im Homeverzeichnis des Nutzers liegt und die entsprechenden Ordner \lstinline`disthash`, \lstinline`machines` und \lstinline`scripts` enthält.} erstellt nach Eingabe des Passworts die Datei \lstinline`machinefile` im Ordner \lstinline`machines`, die alle Rechner auflistet, die online sind. Weiterhin wird am Ende des Skripts angezeigt, wie viele Rechner online sind. Das ist hilfreich, um die Maximalanzahl der Prozesse, die der Anwendung für eine parallele Verarbeitung zugewiesen werden können, zu bestimmen.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale=.4]{images/acceptCert.png}
+\caption{Ablauf des Skripts, der die Rechner des Computerlabors überprüft}
+\label{fig:acceptCert}
+\end{figure}
 
 \section{Nutzung}
 
-Mit der installierten \lstinline`mpich`-Anwendung und der erstellten \lstinline`machinefile` können nun erste Testanwendungen ausgeführt werden. Zu beachten ist, dass der Programmaufruf immer über einen der \lstinline`isys`-Rechner geschehen muss (und beispielsweise nicht über \lstinline|ilux150|). Hier der beispielhafte Programmaufrufe ausgehend von einem eigenen Rechner über \lstinline`ilux150` (im Folgenden wird immer angenommen, dass der Ordner \lstinline`projektseminar` im Homeverzeichnis des Nutzers liegt und die entsprechenden Ordner \lstinline`disthash`, \lstinline`machines` und \lstinline`scripts` enthält).
+Mit der installierten \lstinline`mpich`-Anwendung und der erstellten \lstinline`machinefile` können nun erste Testanwendungen ausgeführt werden. Zu beachten ist, dass der Programmaufruf immer über einen der \lstinline`isys`-Rechner geschehen muss (und beispielsweise nicht über \lstinline|ilux150|). Hier der beispielhafte Programmaufrufe ausgehend von einem eigenen Rechner über \lstinline`ilux150`.
 \begin{lstlisting}
 ssh ilux150.informatik.htw-dresden.de -l s74053
 ssh isys1
@@ -245,12 +252,41 @@ Die Argumente des Programms \lstinline`disthash` sind der \autoref{tab:args} zu 
 \lstinline`-l` & Die Hashtabelle wird \textbf{l}okal angelegt. Keine Kommunikation über MPI. Darf nur mit einem Prozess ausgeführt werden. Standardmäßig nicht aktiviert und zu Testzwecken gedacht.\\
 \lstinline`-r` & Die Hashtabelle wird entfernt (\textbf{r}emote) angelegt. Prinzip Client-Server: Ein Prozess macht anfragen, der Andere bearbeitet diese mit seiner Hashtabelle. Kommunikation über MPI. Darf nur mit zwei Prozessen ausgeführt werden. Standardmäßig nicht aktiviert und zu Testzwecken gedacht.\\
 \lstinline`-d` & Die Hashtabelle wird entfernt (\textbf{d}istributed) angelegt. Dies ist Standardmäßig aktiviert und entspricht den Anforderungen der Aufgabenstellung.\\
-\lstinline`-t` & Es werden verschieden \textbf{T}ests ausgeführt und anschließend eine Zusammenfassung angezeigt und in Datei gespeichert. Benutzereingabe ist deaktiviert. Je nach Modus und Größe der Hashtabelle kann dies einige Zeit dauern. Standardmäßig nicht aktiviert.\\
+\lstinline`-t` & Es werden verschieden \textbf{T}ests ausgeführt, anschließend eine Zusammenfassung angezeigt und in Datei gespeichert. Benutzereingabe ist deaktiviert. Je nach Modus und Größe der Hashtabelle kann dies einige Zeit dauern. Standardmäßig nicht aktiviert.\\
 \lstinline`-h ***` & Legt die Größe der \textbf{H}ashtabelle fest. Standardwert ist $4096$ (entspricht \lstinline`-h 4096`).\\
 \end{tabular}
 \caption{Argumente des Programms \lstinline`disthash`}
 \label{tab:args}
 \end{table}
+
+Führt man das Programm mit dem Argument \lstinline`-t` aus, so finden die Test statt, deren Ergebnisse in \ref{sec:results} tabellarisch aufgezeichnet wurden. Der Programmablauf in der Konsole ist in \autoref{fig:testrun} zu sehen. Dabei ist die Reihenfolge der durchgeführten Tests gut nachzuvollziehen. Die Ergebnisse, die auch in einer \lstinline`.csv`-Datei gespeichert werden, sind zum Schluss gut ablesbar aufgelistet.\bigskip
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale=.4]{images/testrun.png}
+\caption{Ablauf einer Testdurchführung}
+\label{fig:testrun}
+\end{figure}
+
+Führt man das Programm ohne Testargument aus, so wird ein Testdatensatz eingelesen, auf dem man dann Befehle ausführen kann. Die Befehle sind wie folgt:
+\begin{itemize}
+\item \lstinline`get ID`, um den Eintrag mit dem Schlüssel \lstinline`ID` abzufragen.
+\item \lstinline`ins ID string`, um einen Eintrag mit dem Schlüssel \lstinline`ID` und dem Wert \lstinline`string` hinzuzufügen.
+\item \lstinline`del ID`, um den Eintrag mit dem Schlüssel \lstinline`ID` zu löschen.
+\item \lstinline`h` bzw. \lstinline`help`, um die Übersicht der möglichen Befehle anzeigen zu lassen (wird auch bei Beginn der Nutzereingabe angezeigt).
+\item \lstinline`q` bzw. \lstinline`quit`, um \lstinline`DistHash` zu beenden.
+\end{itemize}
+
+
+Bei der Abarbeitung der Befehle wird dargestellt, an welchen Prozess die entsprechende Anfrage geschickt wurde und wie dieser geantwortet hat. Zur einfacheren Zuordnung sind die Prozesse verschiedenfarbig codiert (die Farben können sich bei einer großen Anzahl an Prozessen wiederholen). Ein beispielhafter Programmablauf ist in \autoref{fig:userinput} nachzuvollziehen.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale=.4]{images/userinput.png}
+\caption{Benutzung des CLI der Anwendung \lstinline`DistHash`}
+\label{fig:userinput}
+\end{figure}
+
 
 \chapter{Umsetzung}
 
@@ -311,11 +347,11 @@ Abarbeitung von:\\
 \end{figure}
 
 \section{Kommunikation über MPI}
-Um eine Anfrage über MPI zu senden, muss der Sender einem Empfänger seine Nachricht mit einem bestimmten Code senden. Der Empfänger muss auf den Sender hören und kann anhand des Codes entscheiden, ob er die Nachricht entgegennehmen möchte und gegebenenfalls die Nachricht verarbeiten. 
+Um eine Anfrage über MPI zu senden, muss der Sender einem Empfänger seine Nachricht mit einem bestimmten Code senden. Der Empfänger muss auf den Sender hören, kann anhand des Codes entscheiden, ob er die Nachricht entgegennehmen möchte und gegebenenfalls die Nachricht verarbeiten. 
 
 In dieser Implementation ist es so, dass die Threads grundsätzlich auf alle Prozesse hören. Sobald ein Prozess eine Anfrage gesendet hat, die von dem Thread entgegen genommen wird, hört der Thread nur noch auf diesen Prozess. Anhand des Codes der Anfrage weiß der Thread, welche Inhalte er im Folgenden zu erwarten hat und reagiert entsprechend nur auf diese. Ist eine Anfrage beendet, öffnet der Thread sich wieder allen Prozessen und kann die nächste Anfrage entgegen nehmen.
 
-In den folgenden Abschnitten werden diese Abläufe für die drei Anfragen (beziehungsweise Aktionen) beschrieben. Um die genaue Funktionsweise nachzuvollziehen ist der Quellcode weiterhin ausreichend kommentiert.
+In den folgenden Abschnitten werden diese Abläufe für die drei Anfragen (beziehungsweise Aktionen) beschrieben. Um die genaue Funktionsweise nachzuvollziehen ist weiterhin der Quellcode ausreichend kommentiert.
 
 \section{Einfügen}
 
@@ -345,7 +381,7 @@ Wie zuvor beschrieben, muss der Prozess $i$ zuerst sein Anliegen (die Aktion \ls
 \section{Löschen}
 Anhand der \autoref{fig:disthashdel} soll mit dem Prozess $i$, der das Element $p$ aus der Hashtabelle löschen möchte, der Ablauf des Löschens erklärt werden. Das Element gehöre zur Hashtabelle im Prozess $j$.
 
-Der Ablauf ist ähnlich zu dem des Einfügens, bloß dass statt der zu Übertragenen Zeichenkette nach dem Übertragen des Schlüssels ein Feedback von $j'$ an $i$ gesendet wird, damit $i$ Bescheid weiß, ob das Element gelöscht wurde oder nicht (weil es nicht existiert).
+Der Ablauf ist ähnlich zu dem des Einfügens. Anstatt der Zeichenkette von $i$ and $j'$ wird ein Feedback von $j'$ an $i$ gesendet, damit $i$ Bescheid weiß, ob das Element gelöscht wurde oder nicht (wenn es nicht existiert).
 
 \begin{figure}[!ht]
 \centering
@@ -369,7 +405,7 @@ Der Ablauf ist ähnlich zu dem des Einfügens, bloß dass statt der zu Übertrag
 \section{Abrufen}
 Anhand der \autoref{fig:disthashget} soll mit dem Prozess $i$, der das Element $p$ aus der Hashtabelle abfrufen möchte, der Ablauf des Abrufens erklärt werden. Das Element gehöre zur Hashtabelle im Prozess $j$.
 
-Der Ablauf ist ähnlich zu dem des Einfügens und Löschens, bloß dass nach dem Senden des Schlüssels an $j'$ die Länge der Zeichenkette an $i$ gesendet wird, damit $i$ die Zeichenkette empfangen kann. Falls die Zeichenkette allerdings leer ist (weil das Element nicht vorhanden ist), so ist die Länge der Zeichenkette negativ und gibt $i$ dies somit zu erkennen. Dem entsprechend wir die Zeichenkette dann nicht mehr übertragen.
+Der Ablauf ist ähnlich zu dem des Einfügens und Löschens. Abweichend wird nach dem Senden des Schlüssels an $j'$ die Länge der Zeichenkette an $i$ gesendet wird, damit $i$ die Zeichenkette empfangen kann. Falls die Zeichenkette allerdings leer ist (weil das Element nicht vorhanden ist), so wird von $j'$ eine negative Zeichenkettenlänge übertragen.Dem entsprechend weiß $i$ Bescheid, dass keine Übertragung der Zeichenkette mehr zu erwarten ist.
 \begin{figure}[!ht]
 \centering
 \begin{tikzpicture}[scale=.68]
@@ -399,7 +435,7 @@ Vor der Auswertung wurde überlegt, welche Ergebnisse zu erwarten sind. Es wurde
 
 Es ist im Vergleich zu der lokalen Hashtabelle mit der verteilten kein Geschwindigkeitsgewinn zu erwarten, da relativ viel kommuniziert und relativ wenig berechnet wird. Wahrscheinlich ist, dass es deutlich langsamer ist, besonders wenn viele Prozesse genau einen Hash-Wert eines einzigen Rechners lesen/schreiben möchten.
 
-Der Kompromiss bei der verteilten Hashtabelle ist, dass zwar der mögliche Speicherplatz höher ist, aber durch die Kommunikation zwischen Prozessen die Geschwindigkeit der Verarbeitung geringer ist. 
+Der Kompromiss bei der verteilten Hashtabelle ist, dass zwar der mögliche Speicherplatz erhöht, aber durch die Kommunikation zwischen Prozessen die Geschwindigkeit der Verarbeitung verringert wird. 
 
 Mit den Vermutungen zur Geschwindigkeit und den Vorüberlegungen zur Speichergröße wurde die \autoref{tab:expect} aufgestellt.
 
@@ -415,7 +451,7 @@ Verteilt & \Circle & +\\
 \label{tab:expect}
 \end{table}
 
-\section{Umfang}
+\section{Umfang und Rahmenbedingungen}
 Um die Leistungsfähigkeit des Programms \lstinline`DistHash` zu prüfen, wurden alle Aktionen (\lstinline`Insert`, \lstinline`Get` und \lstinline`Delete`) mehrfach unter verschiedenen Voraussetzungen durchgeführt. Variiert wurden dabei vor allem folgende Umstände:
 
 \begin{itemize}
@@ -443,15 +479,15 @@ Daraus wurden $12$ Testaufbauten entworfen, die jeweils mit variabler Größe de
 
 Jeder Test wurde $258\,000$ Mal durchgeführt, da für das nicht zufällige Einfügen ein Datensatz verwendet wurde, der eben so viele Einträge hat. Dieser Datensatz wurde vor der Messung zwischengespeichert, sodass das Auslesen deren Datei keinen Einfluss auf die Messung hat.
 
-Alle Tests wurden mit Hashtabellen unterschiedlicher Größe durchgeführt. Damit wird bei gleichbleibender Anzahl von Tests und damit der Daten simuliert, wie das Programm relativ zur Datenmenge funktioniert.
+Alle Tests wurden mit Hashtabellen unterschiedlicher Größe durchgeführt. Damit wird bei gleichbleibender Anzahl von Daten pro Test simuliert, wie das Programm relativ zur Datenmenge funktioniert.
 
-Neben den vorgegebenen Anzahl an Prozessen für den lokalen und entfernten Modus wurden $1$, $2$, $3$, $4$, $6$, $8$, $12$, $16$, $24$, $32$ und $42$ Prozesse im verteilten Modus getestet.
+Neben den vorgegebenen Anzahl an Prozessen für den lokalen und entfernten Modus wurden zwischen $1$ und $42$ Prozesse im verteilten Modus getestet. Die (maximale) Anzahl der möglichen Prozesse richtet sich nach der Größe des Rechnerlabors der HTW Dresden. Dort stehen maximal $45$ Rechner zur Verfügung. Da die Computer der Rechnerlabore und deren Netzwerk nicht explizit für die Tests reserviert wurde, sind von der Rechnerbenutzung Dritter verursachte Abweichungen der Messergebnisse zu erwarten.
 
 Zu jedem Test wurden drei Messungen vorgenommen und zur Analyse der Mittelwert daraus verwendet. 
 
 \section{Ergebnisse}
 \label{sec:results}
-Im Folgenden sind die Messergebnisse aller Testaufbauten zu finden. Die farbliche Hinterlegung ist für alle Tabellen in den jeweiligen Kategorien gleich und wurde so gewählt, dass grün einem relativ gutem, gelb einem schlechten und rot einen nicht praktikablen Wert entspricht.
+Im Folgenden sind die Messergebnisse aller Testaufbauten zu finden. Die farbliche Hinterlegung ist für alle Tabellen in den jeweiligen Kategorien gleich und wurde so gewählt, dass grün einem relativ guten, gelb einem schlechten und rot einem nicht praktikablen Wert entspricht.
 \begin{itemize}
 \item Die gemessenen Zeiten sind in Sekunden angegeben. Dabei sind die Farbgrenzen:\\
 Grün: 0.004\qquad
@@ -573,7 +609,7 @@ Rot:	295
 
 \section{Analyse}
 
-Aus den Tabellen von \autoref{sec:results} kann man innerhalb kürzester Zeit einige Tatsachen ablesen, die im Folgenden ergründet werden sollen:\bigskip
+Aus den Tabellen von \autoref{sec:results} können innerhalb kürzester Zeit einige Beobachtungen aufgestellt werden, die im Folgenden ergründet werden sollen:\bigskip
 
 Wie zu erwarten ist der lokale Modus (weitestgehend) mit Abstand der schnellste, da keine explizite Kommunikation nötig ist (siehe \autoref{fig:local}). %
 \begin{figure}[!ht]
@@ -590,7 +626,7 @@ Wie zu erwarten ist der lokale Modus (weitestgehend) mit Abstand der schnellste,
 \end{figure}%
 Bei lokalen Modus sind die Berechnungen der Flaschenhals: Bei einer kleinen Hashtabelle (bzw. relativ vielen Daten) muss gegebenenfalls sehr lange in einer primitiven Liste nach dem passenden Eintrag gesucht werden. Im Falle des Einfügens eines neuen Eintrags muss die Liste komplett durchsucht werden. Je mehr Einträge es bereits gibt, desto länger dauert das Eintragen. \bigskip
 
-Der verteilte Modus mit einem Prozess verhält sich ähnlich, wie der lokale Modus, da auch nicht über das Netzwerk kommuniziert wird (siehe \autoref{fig:dist1}). %
+Der verteilte Modus mit einem Prozess verhält sich ähnlich wie der lokale Modus, da auch nicht über das Netzwerk kommuniziert wird (siehe \autoref{fig:dist1}). %
 \begin{figure}[!ht]
 \centering
 \begin{tikzpicture}[scale=.75]
@@ -603,9 +639,9 @@ Der verteilte Modus mit einem Prozess verhält sich ähnlich, wie der lokale Mod
 \caption{Alle Anfragen werden an eigenen Thread gesendet}
 \label{fig:dist1}
 \end{figure}%
-Da trotzdem eine nicht zu vernachlässigende Kommunikation zwischen dem Hauptprozess und dem Thread statt findet, ist der Modus nicht so schnell wie der lokale mit seinem direkten Zugriff auf die Hashtabelle. \bigskip
+Da eine nicht zu vernachlässigende Kommunikation zwischen dem Hauptprozess und dem Thread statt findet, ist der Modus nicht so schnell wie der lokale mit seinem direkten Zugriff auf die Hashtabelle. \bigskip
 
-Der entfernte Modus ist ebenfalls wie zu erwarten der schlechteste: Hier kommen zu den Zeiten des Berechnens, die den des lokalen Modus entsprechen, die Zeiten der Kommunikation zwischen den Rechnern hinzu (siehe \autoref{fig:remote}). %
+Der entfernte Modus ist ebenfalls wie zu erwarten der schlechteste: Hier kommen zu den Zeiten des Berechnens, die denen des lokalen Modus entsprechen, die Zeiten der Kommunikation zwischen den Rechnern hinzu (siehe \autoref{fig:remote}). %
 \begin{figure}[!ht]
 \centering
 \begin{tikzpicture}[scale=.75]
@@ -619,7 +655,7 @@ Der entfernte Modus ist ebenfalls wie zu erwarten der schlechteste: Hier kommen 
 \caption{Alle Anfragen werden an einen Prozess gesendet}
 \label{fig:remote}
 \end{figure}%
-Da die Prozesse durch die langwierige Kommunikation genug Zeit haben die Suchen durchzuführen, ist dieser Prozess mit relativ geringen Varianzen in den Zeiten allerdings auch von gleichbleibender (schlechter) Geschwindigkeit. \bigskip
+Da die Prozesse durch die langwierige Kommunikation genug Zeit haben die Suchen durchzuführen, hat dieser Prozess mit relativ geringen Varianzen in den Zeiten allerdings auch eine gleichbleibende (schlechte) Geschwindigkeit. \bigskip
 
 Die verteilte Hashtabelle ist differenziert zu betrachten: Je mehr Prozesse an dieser beteiligt sind, desto geringer die Zeit die für jedweden Test benötigt wird. Damit schrumpft die Varianz der benötigten Zeit auch deutlich, sodass sie deutlich zuverlässiger ist -- auch bei großen Datenmengen. Damit ist die verteilte Hashtabelle für große Datenmengen besonders gut geeignet, selbst wenn die Daten die vorgesehen Größe der Hashtabelle übersteigen. Zu beachten ist allerdings, dass hier die Verteilung der Einträge besonders zu tragen kommt. Wenn die Einträge nicht entsprechend der Hashfunktion verteilt sind (in diesem Fall: gleichmäßig), so kann dies zu einer Häufung von Einträgen zu einem Prozess führen. In diesem Fall wäre die Geschwindigkeit wieder deutlich schlechter, vergleichbar mit der entfernten Hashtabelle (siehe Vergleich \autoref{fig:comparsion}).
 \begin{figure}[!ht]
@@ -660,13 +696,15 @@ Die verteilte Hashtabelle ist differenziert zu betrachten: Je mehr Prozesse an d
 
 An dem Verlauf der Kurven in \autoref{tab:graphs} lässt sich gut erkennen, was die Flaschenhälse für die jeweiligen Modi sind:\medskip
 
-Der lokale Modus scheitert an der aufwendigen Suche der Überlaufliste in Form einer primitiven Liste. Wird ein neues Element in eine Überlaufliste der Länge $n$ eingefügt beträgt die Laufzeit $O(n)$.
+Der lokale Modus scheitert an der aufwendigen Suche der Überlaufliste in Form einer primitiven Liste. Wird ein neues Element in eine Überlaufliste der Länge $n$ eingefügt, beträgt die Laufzeit $O(n)$.
 
-Der verteilte Modus ist sehr von der (Reaktions-)Geschwindigkeit des Netzwerks abhängig. Vor allem im Graph für eine große Hashtabelle sieht man große Fluktuationen zwischen verschiedenen Test, die zu verschiedenen Zeitpunkten gemessen wurden. So ist die Geschwindigkeit der verteilten Hashtabelle mit 2 Prozessen unerwartet größer als die mit 3 Prozessen. Da die Berechnungszeit trivial klein ist, hängt das wahrscheinlich mit der Auslastung des Routers zusammen: Der Test mit 2 Prozessen wurde nachts vorgenommen (einem Zeitpunkt, zu dem wahrscheinlich sonst niemand etwas im Netzwerk gemacht hat), der Test mit 3 Prozessen tagsüber. Dem entsprechend ist der Test mit 3 Prozessen von der normalen Benutzung des Rechnerlabors beeinträchtigt und somit etwas langsamer. Im Kontrast dazu kommt diese Verlangsamung im Graph für eine kleine Hashtabelle weniger zu tragen, da hier die aufwendige Suche eine große Berechnungszeit bewirkt und die Kommunikationsgeschwindigkeit weniger relevant ist. \bigskip
+Der verteilte Modus ist sehr von der (Reaktions-)Geschwindigkeit des Netzwerks abhängig. Vor allem im Graph für eine große Hashtabelle sieht man große Fluktuationen zwischen verschiedenen Test, die zu verschiedenen Zeitpunkten gemessen wurden. So ist die Geschwindigkeit der verteilten Hashtabelle mit 2 Prozessen unerwartet größer als die mit 3 Prozessen. Da die Berechnungszeit trivial klein ist, hängt das wahrscheinlich mit der Auslastung des Routers im Rechnerlabor zusammen: Der Test mit 2 Prozessen wurde nachts vorgenommen (einem Zeitpunkt, zu dem wahrscheinlich sonst niemand etwas im Netzwerk gemacht hat), der Test mit 3 Prozessen tagsüber. Dem entsprechend ist der Test mit 3 Prozessen von der normalen Benutzung des Rechnerlabors beeinträchtigt und etwas langsamer. 
+%Im Kontrast dazu kommt diese Verlangsamung im Graph für eine kleine Hashtabelle weniger zu tragen, da hier die aufwendige Suche eine große Berechnungszeit bewirkt und die Kommunikationsgeschwindigkeit weniger relevant ist. 
+\bigskip
 
 Es ist in jedem Fall zu beobachten, dass sich der verteilte Modus bei relativ viel Daten schon bei wenig teilnehmenden Prozessen lohnt (sogar und gerade im Vergleich zum lokalen Modus). In sofern wurde die in \autoref{sec:hyp} aufgestellte Hypothese teilweise widerlegt.\bigskip
 
-Hat man also Systeme vorliegen, die eher geringe Leistung und Speicherkapazität haben, so kann die hohe Parallelisierung einer verteilten Hashtabelle lohnenswert sein, da ausgenutzt wird, dass wahrscheinlich nicht ein Prozess alle Anfragen auf ein Mal bekommt, sondern sich die Anfragen auf alle Prozesse verteilen. Liegt allerdings ein System mit ausreichend großem Leistungs- und Speicherkapazitätspotential vor, so ist es sinnvoller auf eine lokale Hashtabelle zu setzen.
+Liegen also Systeme vor, die eher geringe Leistung und Speicherkapazität haben, so kann die hohe Parallelisierung einer verteilten Hashtabelle lohnenswert sein, da ausgenutzt wird, dass sich die Anfragen mit einer entsprechend optimierten Hashfunktion auf alle Prozesse verteilen. Liegt allerdings ein System mit ausreichend großem Leistungs- und Speicherkapazitätspotential vor, so ist es sinnvoller auf eine lokale Hashtabelle zu setzen.
 
 % http://www.algolist.net/Data_structures/Hash_table/Open_addressing
 
@@ -686,13 +724,13 @@ Die verteilte Hashtabelle ist mit beliebig vielen Prozessen läuffähig.
 
 Die hier vorgestellte Implementation richtet sich vor allem nach den Vorgaben der Aufgabenstellung, nämlich dem Fokus auf die Skalierbarkeit und Selbstorganisation. Damit wurden einige lohnenswerte Eigenschaften außer acht gelassen. 
 
-So wurde für die Lastenverteilung eine gleichförmige Verteilung der Daten angenommen (wie im Beispieldatensatz). In der Realität kommen die Daten aber meist nicht so gleichmäßig verteilt vor, sodass eine besser Funktion zur Bildung des Hashschlüssels empfehlenswert wäre (wie beispielsweise die \emph{Jenkins hash function}).
+So wurde für die Lastenverteilung eine gleichförmige Verteilung der Daten angenommen (wie im Beispieldatensatz). In der Realität kann es aber vorkommen, dass die Daten nicht so gleichmäßig verteilt sind, sodass eine besser Funktion zur Bildung des Hashschlüssels empfehlenswert wäre (wie beispielsweise die \emph{Jenkins hash function}).
 
-Dadurch dass MPI als Kommunikationsprotokoll genutzt wurde, ist die Fehlertoleranz ebenfalls sehr gering, da die gesamte Anwendung abstürzt, sobald ein Prozess beendet wird (wenn beispielsweise der Rechner ausgeschaltet wird). Selbst wenn dieses Manko beseitigt würde, wären dann immer noch die Daten des entsprechenden Systems nicht mehr vorhanden. Für diesen Zweck wäre noch eine Fehlerkorrektur wünschenswert, wie sie beispielsweise im Seminar von Kommilitonen zum Thema Spread-Code erörtert wurde.
+Dadurch, dass MPI als Kommunikationsprotokoll genutzt wurde, ist die Fehlertoleranz ebenfalls sehr gering, da die gesamte Anwendung abstürzt, sobald ein Prozess beendet wird (wenn beispielsweise der Rechner ausgeschaltet wird). Selbst wenn dieses Manko beseitigt würde, wären immer noch die Daten des entsprechenden Systems nicht mehr vorhanden. Für diesen Zweck wäre eine Fehlerkorrektur wünschenswert, wie sie beispielsweise im Seminar von Kommilitonen zum Thema Spread-Code erörtert wurde.
 
-Das Hauptproblem, das die lokale Hashtabelle ausbremst ist die Suche in der Überlaufliste. Diese wurde sehr primitiv implementiert. Wenn man nicht parallel arbeiten möchte, wäre dies ein Punkt die Implementation durch verbesserte Suchalgorithmen oder Datenstrukturen zu verbessern. 
+Das Hauptproblem, das die lokale Hashtabelle ausbremst, ist die Suche in der Überlaufliste. Diese wurde sehr primitiv implementiert. Vor allem wenn nicht parallel gearbeitet werden soll, wäre dies ein Punkt die Implementation durch verbesserte Suchalgorithmen oder Datenstrukturen zu verbessern. 
 
-Unabhängig von den Optimierungen könnte man das System auch noch erweitern, indem man nicht nur mit Zeichenketteneinträgen arbeitet, sondern mit Klassen beziehungsweise Objekten. Da die Übertragung bitweise statt findet, kann theoretisch alles übertragen werden, wenn es richtig auseinander genommen und wieder zusammen gesetzt wird. Wenn man die Implementation durch eine allgemeine Schnittstelle und generischen Datentypen erweitern würde, könnte die Funktionalitäten als Framework auch von anderen Programmen genutzt werden. Dies würde die Verarbeitung von komplexeren Hashtabelleneinträgen ermöglichen und das Programm sinnvoll erweitern.
+Unabhängig von den Optimierungen könnte man das System auch noch sinnvoll erweitern, indem man nicht nur mit Zeichenketteneinträgen arbeitet, sondern mit Klassen beziehungsweise Objekten. Da die Übertragung bitweise statt findet, kann theoretisch alles übertragen werden, wenn es richtig auseinander genommen und wieder zusammen gesetzt wird. Wenn man die Implementation durch eine allgemeine Schnittstelle und generischen Datentypen erweitern würde, könnte die Funktionalitäten als Framework auch von anderen Programmen genutzt werden. Dies würde die anwendungsunabhängige Verarbeitung von komplexeren Hashtabelleneinträgen ermöglichen und das Programm somit für den tatsächlichen Gebrauch tauglich machen.
 
 \nocite{*}
 \printbibliography
